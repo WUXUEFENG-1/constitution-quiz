@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在线练习 · 学宪法 讲宪法</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="dashboard.html">选手中心</a>
+      <a href="practice.html">在线练习</a>
+      <a href="exam.html">答题入口</a>
+      <span class="user-chip" id="userChip">—</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 class="page-title">在线练习 <span id="practiceTip" style="font-size:13px;font-weight:400;color:var(--ink-3)"></span></h2>
+  <p class="page-sub">练习不计入成绩，提交后可查看正确答案与解析。</p>
+
+  <div class="exam-layout">
+    <div>
+      <div class="q-list" id="qList"></div>
+      <div class="exam-actions">
+        <button class="btn" id="submitBtn">提交并查看解析</button>
+        <button class="btn ghost" id="reloadBtn">再练一组</button>
+        <span class="progress-text" id="progressText">已作答 0 / 0</span>
+      </div>
+    </div>
+    <aside>
+      <div class="card sheet">
+        <div class="card-title" style="font-size:14px">答题卡</div>
+        <div class="sheet-grid" id="sheet"></div>
+        <div style="margin-top:14px;font-size:12.5px;color:var(--ink-3)">
+          <span style="display:inline-block;width:10px;height:10px;background:var(--blue-100);border:1px solid #b8d8f2;border-radius:3px;margin-right:5px"></span>已作答
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛组委会</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/practice.js"></script>
+</body>
+</html>

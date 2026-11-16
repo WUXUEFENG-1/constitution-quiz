@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>选手注册 · 学宪法 讲宪法 校园知识竞赛</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+      </div>
+    </div>
+    <div class="header-nav">
+      <a href="index.html">返回登录</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" style="max-width:640px">
+  <h2 class="page-title">选手注册</h2>
+  <p class="page-sub">请填写真实信息，用于报名统计与成绩认定；学号即登录账号。</p>
+
+  <div class="card">
+    <form id="signupForm" autocomplete="on">
+      <div class="grid-2">
+        <div class="field">
+          <label for="fullName">姓名 <span class="req">*</span></label>
+          <input type="text" id="fullName" placeholder="请输入真实姓名" required>
+        </div>
+        <div class="field">
+          <label for="studentNo">学号 <span class="req">*</span></label>
+          <input type="text" id="studentNo" placeholder="例如 20260001" required>
+          <div class="hint">学号将作为登录账号，注册后不可修改</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="department">系部 / 学院 <span class="req">*</span></label>
+          <input type="text" id="department" placeholder="例如 信息工程学院" required>
+        </div>
+        <div class="field">
+          <label for="className">班级 <span class="req">*</span></label>
+          <input type="text" id="className" placeholder="例如 计算机网络技术2501班" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="phone">手机号</label>
+        <input type="tel" id="phone" placeholder="用于赛事通知，可选填" maxlength="11">
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="password">设置密码 <span class="req">*</span></label>
+          <input type="password" id="password" placeholder="至少 6 位" required>
+        </div>
+        <div class="field">
+          <label for="password2">确认密码 <span class="req">*</span></label>
+          <input type="password" id="password2" placeholder="再次输入密码" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="inline-check">
+          <input type="checkbox" id="agree" required>
+          <label for="agree" style="margin:0">我已阅读并承诺遵守竞赛规则，独立完成答题，不弄虚作假</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn block" id="signupBtn">注册并进入选手中心</button>
+    </form>
+    <div class="auth-switch">已有账号？<a href="index.html">直接登录</a></div>
+  </div>
+
+  <div class="notice" style="margin-top:16px">
+    提示：注册成功后仍需在选手中心点击“立即报名”完成报名；报名信息会出现在管理员的报名统计中。
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span data-brand="ORG_NAME">云南工业信息职业学院</span> · 技术支持：竞赛组委会
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/signup.js"></script>
+</body>
+</html>

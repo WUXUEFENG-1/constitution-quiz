@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>管理后台 · 学宪法 讲宪法</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <span class="user-chip" id="userChip">管理员</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 class="page-title">竞赛管理后台</h2>
+  <p class="page-sub">报名统计 · 题库维护 · 答题开放 · 成绩导出</p>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">数据概览</button>
+    <button class="tab" data-tab="registrations">报名统计</button>
+    <button class="tab" data-tab="questions">题库管理</button>
+    <button class="tab" data-tab="settings">答题设置</button>
+    <button class="tab" data-tab="scores">成绩导出</button>
+  </div>
+
+  <!-- 概览 -->
+  <section id="panel-overview">
+    <div class="grid-4" id="statCards"></div>
+    <div class="grid-2" style="margin-top:18px">
+      <div class="card" style="margin:0">
+        <div class="card-title">各系部报名人数</div>
+        <div id="deptBars"><div class="empty-state" style="padding:20px">暂无数据</div></div>
+      </div>
+      <div class="card" style="margin:0">
+        <div class="card-title">答题状态分布</div>
+        <div id="stateBars"><div class="empty-state" style="padding:20px">暂无数据</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">当前开放状态 <span class="right" id="ovState"></span></div>
+      <div id="ovSetting"></div>
+    </div>
+  </section>
+
+  <!-- 报名统计 -->
+  <section id="panel-registrations" hidden>
+    <div class="card">
+      <div class="card-title">报名名单 <span class="right" id="regCount"></span></div>
+      <div class="toolbar">
+        <input type="text" id="regSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
+        <select id="regDept"><option value="">全部系部</option></select>
+        <button class="btn ghost sm" id="regExport">导出报名表（CSV）</button>
+        <button class="btn soft sm" id="regRefresh">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th>#</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>手机号</th><th>报名时间</th>
+          </tr></thead>
+          <tbody id="regBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 题库管理 -->
+  <section id="panel-questions" hidden>
+    <div class="card">
+      <div class="card-title">题库 <span class="right" id="qCount"></span></div>
+      <div class="toolbar">
+        <input type="text" id="qSearch" class="grow" placeholder="按题干关键词搜索">
+        <select id="qType">
+          <option value="">全部题型</option>
+          <option value="single">单选题</option>
+          <option value="multiple">多选题</option>
+          <option value="judge">判断题</option>
+          <option value="fill">填空题</option>
+        </select>
+        <button class="btn sm" id="qAddBtn">新增题目</button>
+        <button class="btn soft sm" id="qImportBtn">批量导入（Excel / CSV）</button>
+        <button class="btn ghost sm" id="qTemplateBtn">下载导入模板</button>
+        <input type="file" id="qFile" accept=".xlsx,.xls,.csv" hidden>
+      </div>
+      <div class="notice" style="margin-bottom:14px">
+        导入模板列顺序：<b>题型 / 题干 / 选项A / 选项B / 选项C / 选项D / 正确答案 / 分值 / 解析</b>。
+        题型填“单选/多选/判断/填空”；多选答案写“ABD”或“A,B,D”；判断题答案写“正确/错误”；填空多个空用 <b>|</b> 分隔。
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th>#</th><th>题型</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody id="qBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 答题设置 -->
+  <section id="panel-settings" hidden>
+    <div class="card">
+      <div class="card-title">答题入口设置</div>
+      <form id="settingForm">
+        <div class="grid-2">
+          <div class="field">
+            <label>答题入口状态</label>
+            <select id="sOpen">
+              <option value="0">关闭（选手无法进入答题）</option>
+              <option value="1">开放（允许选手进入答题）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>抽题数量（每次答题从题库随机抽取）</label>
+            <input type="number" id="sCount" min="1" max="200" value="40">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>开放时间（开始）</label>
+            <input type="datetime-local" id="sStart">
+          </div>
+          <div class="field">
+            <label>截止时间（结束）</label>
+            <input type="datetime-local" id="sEnd">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>答题时长（分钟）</label>
+            <input type="number" id="sDuration" min="1" max="300" value="30">
+          </div>
+          <div class="field">
+            <label>题目顺序</label>
+            <select id="sShuffle">
+              <option value="1">随机打乱</option>
+              <option value="0">按题库顺序</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>选手端公告（可选，显示在答题入口面板）</label>
+          <textarea id="sNote" placeholder="例如：请在规定时间内独立完成，答题期间不要刷新页面。"></textarea>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn" id="saveSetting">保存设置</button>
+          <button type="button" class="btn soft" id="openNow">立即开放</button>
+          <button type="button" class="btn ghost" id="closeNow">立即关闭</button>
+        </div>
+      </form>
+    </div>
+    <div class="notice warn" style="margin-top:16px">
+      说明：开放状态与起止时间同时生效——只有“开放”且在起止时间范围内，选手才能进入答题；关闭后已进入的选手仍可在倒计时内提交。
+    </div>
+  </section>
+
+  <!-- 成绩 -->
+  <section id="panel-scores" hidden>
+    <div class="card">
+      <div class="card-title">答题成绩 <span class="right" id="scoreCount"></span></div>
+      <div class="toolbar">
+        <input type="text" id="scoreSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
+        <select id="scoreStatus">
+          <option value="submitted">已交卷</option>
+          <option value="in_progress">答题中（未交卷）</option>
+          <option value="">全部</option>
+        </select>
+        <button class="btn ghost sm" id="scoreExport">导出成绩表（CSV）</button>
+        <button class="btn soft sm" id="scoreRefresh">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th>排名</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>得分</th><th>总分</th>
+            <th>正确题数</th><th>用时</th><th>交卷时间</th>
+          </tr></thead>
+          <tbody id="scoreBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛管理系统</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

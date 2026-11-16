@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在线答题 · 学宪法 讲宪法</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="exam-topbar">
+  <div class="wrap">
+    <div>
+      <div style="font-weight:700;color:var(--blue-900);font-size:15px" id="examTitle">第二届“学宪法 讲宪法”校园知识竞赛</div>
+      <div style="font-size:12.5px;color:var(--ink-3)" id="examMeta">在线答题</div>
+    </div>
+    <div class="timer" id="timer">--:--</div>
+    <button class="btn" id="topSubmit">交 卷</button>
+    <button class="btn ghost sm" id="exitBtn">退出</button>
+  </div>
+</div>
+
+<main class="wrap" id="examMain" style="padding-top:20px">
+  <div id="guardBox"></div>
+
+  <div id="examArea" hidden>
+    <div class="exam-layout">
+      <div>
+        <div class="q-list" id="qList"></div>
+        <div class="exam-actions">
+          <button class="btn" id="submitBtn">提交答卷</button>
+          <span class="progress-text" id="progressText">已作答 0 / 0</span>
+        </div>
+      </div>
+      <aside>
+        <div class="card sheet">
+          <div class="card-title" style="font-size:14px">答题卡</div>
+          <div class="sheet-grid" id="sheet"></div>
+          <div style="margin-top:14px;font-size:12.5px;color:var(--ink-3);line-height:1.6">
+            <span style="display:inline-block;width:10px;height:10px;background:var(--blue-100);border:1px solid #b8d8f2;border-radius:3px;margin-right:5px"></span>已作答
+            <div style="margin-top:6px">点击题号可快速定位；倒计时结束系统自动交卷。</div>
+          </div>
+          <div class="notice warn" style="margin-top:12px;font-size:12.5px">提交后不可修改，每人仅一次作答机会。</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛组委会</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/exam.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>选手中心 · 学宪法 讲宪法</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="dashboard.html">选手中心</a>
+      <a href="practice.html">在线练习</a>
+      <a href="exam.html">答题入口</a>
+      <span class="user-chip" id="userChip">—</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 class="page-title">选手中心</h2>
+  <p class="page-sub" id="welcomeLine">正在加载…</p>
+
+  <div class="card" id="regCard">
+    <div class="card-title">参赛信息 <span class="right" id="regStatus"></span></div>
+    <div class="grid-4" id="profileGrid"></div>
+    <div id="regAction" style="margin-top:16px"></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:18px">
+    <div class="card" style="margin:0">
+      <div class="card-title">答题入口 <span class="right" id="examStateBadge"></span></div>
+      <div id="examInfo"></div>
+      <div style="margin-top:16px" class="btn-row" id="examAction"></div>
+    </div>
+
+    <div class="card" style="margin:0">
+      <div class="card-title">在线练习</div>
+      <p style="color:var(--ink-2);font-size:13.8px;margin:0 0 14px">
+        练习模式随机抽题，提交后立即显示正确答案与解析，不记录成绩，可用于赛前热身。
+      </p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="practiceCount">题目数量</label>
+          <select id="practiceCount">
+            <option value="10">10 题</option>
+            <option value="20">20 题</option>
+            <option value="30">30 题</option>
+            <option value="50">50 题</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="practiceType">题型</label>
+          <select id="practiceType">
+            <option value="">全部题型</option>
+            <option value="single">单选题</option>
+            <option value="multiple">多选题</option>
+            <option value="judge">判断题</option>
+            <option value="fill">填空题</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn soft" id="practiceBtn">开始练习</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">我的成绩 <span class="right" id="resultHint"></span></div>
+    <div id="resultBox">
+      <div class="empty-state" style="padding:26px"><h2>暂无答题记录</h2><p>答题入口开放后，请在规定时间内完成作答。</p></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛组委会</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

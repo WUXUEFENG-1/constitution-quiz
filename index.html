@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-brand="EVENT_NAME">学宪法 讲宪法 · 校园知识竞赛系统</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-page">
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+      </div>
+    </div>
+    <div class="header-nav">
+      <a href="signup.html">选手注册</a>
+    </div>
+  </div>
+</header>
+
+<div class="auth-hero">
+  <div class="auth-copy">
+    <h2>尊崇宪法<br>学法守法 <em>知法用法</em></h2>
+    <p>第二届“学宪法 讲宪法”校园知识竞赛线上答题平台。选手完成注册与报名后，可在开放时间内进入答题，系统自动判分、即时出分；管理员可实时查看报名与成绩，并导出名单。</p>
+    <div class="auth-features">
+      <div><b>在线练习</b>随机抽题、即时解析，赛前随时热身</div>
+      <div><b>限时答题</b>统一开放时间，到点自动交卷</div>
+      <div><b>自动判分</b>单选、多选、判断、填空全题型</div>
+      <div><b>成绩导出</b>管理员一键导出 Excel 可读报表</div>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <h3>账号登录</h3>
+    <p class="sub">选手使用本人学号登录；管理员使用管理员账号登录</p>
+    <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <label for="account">学号 / 管理员账号 <span class="req">*</span></label>
+        <input type="text" id="account" name="account" placeholder="例如 20260001" required>
+      </div>
+      <div class="field">
+        <label for="password">登录密码 <span class="req">*</span></label>
+        <input type="password" id="password" name="password" placeholder="请输入密码" required>
+        <div class="hint">忘记密码请联系竞赛管理员在后台重置</div>
+      </div>
+      <div class="field">
+        <div class="inline-check"><input type="checkbox" id="remember" checked><label for="remember" style="margin:0">记住我，下次免登录</label></div>
+      </div>
+      <button type="submit" class="btn block" id="loginBtn">登 录</button>
+    </form>
+    <div class="auth-switch">还没有账号？<a href="signup.html">立即注册参赛</a></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span data-brand="ORG_NAME">云南工业信息职业学院</span> · <span data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/index.js"></script>
+</body>
+</html>
