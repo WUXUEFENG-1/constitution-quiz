@@ -12,7 +12,7 @@
 
 /* 后台整体左移并放宽主内容区 */
 .admin-page > main.wrap { width: min(1280px, calc(100% - 32px)); }
-.admin-page .admin-shell { grid-template-columns: 216px minmax(0, 1fr); gap: 16px; }
+.admin-page .admin-shell { display: block; }
 
 /* 后台标题栏吸顶，下滑不消失；不与侧边栏/内容重叠 */
 .admin-pagehead {
@@ -20,11 +20,17 @@
   background: var(--bg);
   padding: 8px 0 12px; margin-bottom: 6px;
   border-bottom: 1px solid var(--line);
+  margin-left: 232px;
 }
 .admin-pagehead .page-sub { margin-bottom: 0; }
 
-/* 侧边栏吸顶；top 由 JS 按头部+标题栏实际高度计算，避免与标题栏重叠 */
-.admin-side { position: sticky; top: 168px; z-index: 10; }
+/* 左侧固定导航栏：整列停靠，不随主内容滚动；超高时栏内自身滚动 */
+.admin-side {
+  position: fixed; left: 0; top: var(--rail-top, 87px); bottom: 0;
+  width: 216px; z-index: 20; border-radius: 0;
+  padding: 14px 10px 24px; overflow-y: auto;
+}
+.admin-main { margin-left: 232px; min-width: 0; }
 
 /* 证书实时预览 */
 #certPreview .cert-line { max-width: 420px; margin: 0 auto; }
