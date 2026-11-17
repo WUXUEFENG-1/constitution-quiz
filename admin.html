@@ -44,6 +44,7 @@
       <button class="side-item" data-tab="monitor" data-perm="proctor"><span class="ico">◉</span>实时监考</button>
       <button class="side-item" data-tab="cheat" data-perm="proctor"><span class="ico">⚠</span>防作弊记录</button>
       <button class="side-item" data-tab="scores" data-perm="statistician"><span class="ico">▥</span>成绩管理</button>
+      <button class="side-item" data-tab="rank" data-perm="all"><span class="ico">☰</span>排行榜</button>
       <button class="side-item" data-tab="appeals" data-perm="admin"><span class="ico">✉</span>申诉审核</button>
       <button class="side-item" data-tab="certs" data-perm="admin"><span class="ico">✦</span>证书管理</button>
       <button class="side-item" data-tab="news" data-perm="admin"><span class="ico">◪</span>公告管理</button>
@@ -189,6 +190,18 @@
     </div>
   </section>
 
+  <!-- 排行榜 -->
+  <section id="panel-rank" hidden>
+    <div class="card">
+      <div class="card-title">实时排行榜 <span class="right" id="rankCount"></span></div>
+      <div class="toolbar">
+        <button class="btn soft sm" id="rankRefresh">刷新</button>
+        <span class="section-note">按总分从高到低排名，同分用时短者优先；仅统计已交卷成绩。</span>
+      </div>
+      <div id="adminRankList"><div class="empty-state" style="padding:20px">暂无成绩</div></div>
+    </div>
+  </section>
+
   <!-- 证书管理 -->
   <section id="panel-certs" hidden>
     <div class="card">
@@ -309,6 +322,7 @@
 <script src="assets/js/admin-monitor.js"></script>
 <script src="assets/js/admin-appeals.js"></script>
 <script src="assets/js/admin-scores.js"></script>
+<script src="assets/js/admin-rank.js"></script>
 <script src="assets/js/admin-certs.js"></script>
 <script src="assets/js/admin-news.js"></script>
 <script src="assets/js/admin-settings.js"></script>
