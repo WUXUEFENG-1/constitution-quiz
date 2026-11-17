@@ -148,6 +148,16 @@
     async recordCheat(kind, detail) {
       try { await sb.rpc("record_cheat", { p_kind: kind, p_detail: detail || "" }); } catch (e) {}
     },
+    /* 答题草稿云端暂存（不判分、不改状态），供换设备 / 清后续答 */
+    async saveProgress(answers) {
+      if (!sb) return;
+      try { await sb.rpc("save_progress", { p_answers: answers || {} }); } catch (e) {}
+    },
+    /* 兜底收卷：清掉超时仍挂起的答卷，返回收卷条数 */
+    async flushExpired() {
+      if (!sb) return 0;
+      try { const { data } = await sb.rpc("flush_expired_attempts"); return Number(data || 0); } catch (e) { return 0; }
+    },
 
     /* ---------- 系统设置 ---------- */
     async loadSettings(force) {
