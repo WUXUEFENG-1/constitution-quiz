@@ -8,6 +8,7 @@
     statistician: (r) => ["admin", "sub_admin", "statistician"].includes(r)
   };
 
+  /* 侧边栏别名 → 实际面板/钩子 */
   const ALIAS = { papers: "competitions", roles: "users" };
   const PANELS = ["overview", "users", "questions", "competitions", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"];
 
@@ -25,6 +26,7 @@
     let ctx;
     try { ctx = await API.guard("staff"); } catch (e) { return; }
     Admin.profile = ctx.profile;
+    document.body.classList.remove("admin-loading");
     document.getElementById("userChip").textContent =
       `${ctx.profile.full_name || "管理员"} · ${API.roleLabel(ctx.profile.role)}`;
     document.getElementById("logoutBtn").onclick = () => API.signOut();
