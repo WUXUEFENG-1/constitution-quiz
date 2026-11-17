@@ -14,8 +14,8 @@
     } catch (e) { return; }
 
     await API.loadSettings();
-    document.getElementById("exitBtn").onclick = () => {
-      if (confirm("答题尚未提交，确定退出？已作答内容会保留，可从答题入口继续。")) location.href = "home.html";
+    document.getElementById("exitBtn").onclick = async () => {
+      if (await API.confirm("答题尚未提交，确定退出？已作答内容会保留，可从答题入口继续。")) location.href = "home.html";
     };
     document.getElementById("topSubmit").onclick = requestSubmit;
     document.getElementById("submitBtn").onclick = requestSubmit;
