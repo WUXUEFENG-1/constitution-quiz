@@ -14,19 +14,30 @@
     fillInfo();
     bindInfo();
     bindPwd();
-    await loadHistory();
+    await Promise.all([loadHistory(), loadCerts()]);
+    activateTabFromQuery();
+  }
+
+  const TABS = ["info", "password", "history", "certs"];
+
+  function showTab(key) {
+    document.querySelectorAll(".tab").forEach((x) =>
+      x.classList.toggle("active", x.dataset.tab === key));
+    TABS.forEach((k) => {
+      const el = document.getElementById("panel-" + k);
+      if (el) el.hidden = k !== key;
+    });
   }
 
   function bindTabs() {
     document.querySelectorAll(".tab").forEach((t) => {
-      t.onclick = () => {
-        document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
-        t.classList.add("active");
-        ["info", "password", "history"].forEach((k) => {
-          document.getElementById("panel-" + k).hidden = k !== t.dataset.tab;
-        });
-      };
+      t.onclick = () => showTab(t.dataset.tab);
     });
+  }
+
+  function activateTabFromQuery() {
+    const q = new URLSearchParams(location.search).get("tab");
+    if (q && TABS.includes(q)) showTab(q);
   }
 
   function fillInfo() {
@@ -120,6 +131,47 @@
         <td>${API.fmtTime(a.submitted_at)}</td>
         <td>${op}</td>
       </tr>`;
+    }).join("");
+  }
+
+  async function loadCerts() {
+    const box = document.getElementById("certList");
+    const { data } = await API.sb.from("certificates")
+      .select("*,competitions(title)")
+      .eq("user_id", profile.id)
+      .order("issued_at", { ascending: false });
+    const certs = data || [];
+    const tpl = API.getSetting("cert_template", {}) || {};
+    const title = tpl.title || "参赛证书";
+    const org = tpl.org || API.cfg.ORG_NAME;
+    const foot = tpl.footer || "";
+    const img = tpl.image || "";
+
+    if (!certs.length) {
+      box.innerHTML = '<div class="card"><div class="empty-state" style="padding:40px 16px">尚未签发证书，完成参赛并由后台签发后可在此查看。</div></div>';
+      return;
+    }
+
+    box.innerHTML = certs.map((c) => {
+      const d = new Date(c.issued_at);
+      const cn = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+      const comp = (c.competitions && c.competitions.title) || API.cfg.EVENT_NAME;
+      const line = `兹证明你于 ${cn} 参加${API.cfg.ORG_NAME}${comp}。`;
+      const bg = img
+        ? `background-image:url(${img});background-size:cover;background-position:center;color:#fff;`
+        : "";
+      return `<div class="cert-box" style="max-width:680px;margin:0 0 20px;${bg}">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div class="cert-title">${API.escapeHtml(title)}</div>
+        <div class="cert-name">${API.escapeHtml(profile.full_name || "选手")}</div>
+        <div class="cert-name-line"></div>
+        <div class="cert-line">${API.escapeHtml(line)}</div>
+        <div class="cert-sign"><span>${API.escapeHtml(org)}</span><span>${cn}</span></div>
+        <div class="cert-foot">
+          <span>${API.escapeHtml(foot)}</span>
+          <span class="mono">编号：${API.escapeHtml(c.serial_no || "")}</span>
+        </div>
+      </div>`;
     }).join("");
   }
 })();
