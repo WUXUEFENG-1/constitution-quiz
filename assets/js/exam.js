@@ -2,7 +2,7 @@
 (function () {
   let questions = [], answers = {}, marks = {}, attemptId = null, remaining = 0;
   let tickTimer = null, submitting = false, storeKey = "";
-  let switchCount = 0, current = 0, timeoutWarned = false;
+  let switchCount = 0, current = 0, timeoutWarned = false, compSwitchLimit = null;
 
   init();
 
@@ -57,6 +57,7 @@
       questions = data.questions || [];
       attemptId = data.attempt_id;
       remaining = Number(data.remaining_seconds || 0);
+      compSwitchLimit = data.switch_limit != null ? Number(data.switch_limit) : null;
       storeKey = "exam_answers_" + attemptId;
 
       if (!questions.length) throw new Error("试卷为空，请联系管理员");
@@ -234,11 +235,12 @@
     }, 1000);
   }
 
+  /* 防作弊：切屏 / 失焦 / 复制记录并提醒 */
   function bindCheat() {
     const sec = API.getSetting("security", {});
-    const maxSwitch = Number(sec.max_switch || 3);
     const report = (kind, detail) => {
       if (submitting) return;
+      const maxSwitch = Number(compSwitchLimit || sec.max_switch || 3);
       switchCount++;
       API.recordCheat(kind, `${detail}（第 ${switchCount} 次）`);
       if (switchCount > maxSwitch) {

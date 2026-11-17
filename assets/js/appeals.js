@@ -23,7 +23,7 @@
   }
 
   async function loadCompetitions() {
-    const { data } = await API.sb.from("competitions").select("id,title").order("created_at", { ascending: false });
+    const { data } = await API.sb.from("competitions").select("id,title,appeal_enabled").order("created_at", { ascending: false });
     competitions = data || [];
     const sel = document.getElementById("aComp");
     sel.innerHTML = competitions.length
@@ -62,6 +62,8 @@
     const content = document.getElementById("aContent").value.trim();
     const attemptId = document.getElementById("aAttempt").value.trim() || null;
     const compId = document.getElementById("aComp").value || null;
+    const comp = competitions.find((c) => c.id === compId);
+    if (comp && comp.appeal_enabled === false) return API.toast("本场竞赛已关闭赛后申诉", "error");
     const qid = new URLSearchParams(location.search).get("qid");
     if (content.length < 5) return API.toast("申诉内容至少 5 个字", "error");
     try {
