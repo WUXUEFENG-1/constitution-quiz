@@ -52,6 +52,7 @@
 
   /* 管理端侧边栏：两列横向排布 */
   .admin-side { padding: 10px 8px; }
+  .admin-pagehead { top: 58px; }
   .side-item { flex: 1 1 calc(50% - 4px); padding: 9px 10px; font-size: 13px; }
 
   /* 答题页 */
@@ -61,7 +62,7 @@
   .q-text { font-size: 14.5px; }
   .opt { padding: 10px 12px; font-size: 13.5px; }
   .sheet-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
-  .sheet-cell { height: 30px; font-size: 12px; }
+  .sheet-cell { height: 30px; font-size: 12.5px; }
   .exam-nav, .exam-actions { gap: 8px; }
   .exam-nav .btn, .exam-actions .btn { flex: 1; }
 
