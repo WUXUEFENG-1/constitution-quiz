@@ -5,7 +5,7 @@
   const cfg = global.APP_CONFIG || {};
   const configured =
     typeof cfg.SUPABASE_URL === "string" &&
-    /^https:\/\//.test(cfg.SUPABASE_URL) &&
+    /^https:/.test(cfg.SUPABASE_URL) &&
     !/YOUR-/.test(cfg.SUPABASE_URL) &&
     typeof cfg.SUPABASE_ANON_KEY === "string" &&
     cfg.SUPABASE_ANON_KEY.length > 40 &&
@@ -41,7 +41,7 @@
       const bar = document.createElement("div");
       bar.className = "config-bar";
       bar.innerHTML =
-        '系统尚未连接数据库：请编辑 <code>assets/js/config.js</code>，填入 Supabase的 ' +
+        '系统尚未连接数据库：请编辑 <code>assets/js/config.js</code>，填入 Supabase 的 ' +
         "<b>SUPABASE_URL</b> 与 <b>SUPABASE_ANON_KEY</b> 后重新部署。";
       document.body.prepend(bar);
     },
@@ -208,14 +208,14 @@
       const base = (set && set.api_base) || "https://api.deepseek.com";
       const model = (set && set.model) || "deepseek-chat";
       if (!key) throw new Error("尚未配置 DeepSeek API Key（管理员在系统设置中填写）");
-      const sys = "你是题库解析助手。把输入文本解析为结构化题目 JSON，只输出 JSON 数组，不要解释。" +
+      const sys = "你是题库解析助手。把输入文本解析为结构化题目 JSON，只输出 JSON 对象，格式 {\"questions\":[...]}，不要解释、不要代码块。" +
         "每项字段：qtype(single/multiple/judge/fill), content(题干), options(字符串数组，判断题固定['正确','错误']), " +
         "answer(数组：单选/判断填['A'/'B']，多选填字母数组，填空填空位答案数组), score(数字), analysis(解析)。" + taskHint;
       const resp = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
         body: JSON.stringify({
-          model, temperature: 0.1, response_format: { type: "json_object" },
+          model, temperature: 0.1, max_tokens: 8192, response_format: { type: "json_object" },
           messages: [
             { role: "system", content: sys },
             { role: "user", content: rawText.slice(0, 12000) }
@@ -225,10 +225,31 @@
       if (!resp.ok) throw new Error("DeepSeek 请求失败：HTTP " + resp.status);
       const j = await resp.json();
       const text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || "{}";
-      const parsed = JSON.parse(text);
+      const parsed = API.looseJson(text);
       const list = parsed.questions || parsed.items || (Array.isArray(parsed) ? parsed : []);
       if (!Array.isArray(list)) throw new Error("解析结果格式不正确");
       return list;
+    },
+
+    /* 容错解析：去代码围栏、截断时补齐括号与引号 */
+    looseJson(text) {
+      let s = String(text || "").trim().replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
+      const start = s.search(/[[{]/);
+      if (start < 0) throw new Error("解析结果中未找到 JSON");
+      s = s.slice(start);
+      try { return JSON.parse(s); } catch (e) { /* 继续修复 */ }
+      let out = "", stack = [], inStr = false, esc = false;
+      for (const ch of s) {
+        out += ch;
+        if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
+        if (ch === '"') inStr = true;
+        else if (ch === "{" || ch === "[") stack.push(ch === "{" ? "}" : "]");
+        else if (ch === "}" || ch === "]") stack.pop();
+      }
+      if (inStr) out += '"';
+      out = out.replace(/,\s*([}\]])/g, "$1");
+      while (stack.length) out += stack.pop();
+      return JSON.parse(out);
     },
 
     /* ---------- 通用 UI ---------- */
@@ -244,7 +265,7 @@
     },
 
     escapeHtml(str) {
-      return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
+      return String(str == null ? "" : str).replace(/[&<>'"]/g, (c) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       }[c]));
     },
@@ -277,7 +298,7 @@
         return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
       const csv = "\uFEFF" + rows.map((r) => r.map(esc).join(",")).join("\r\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = filename;
