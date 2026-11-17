@@ -13,6 +13,10 @@
     document.getElementById("setSiteSub").value = site.subtitle || "";
     document.getElementById("setCaptcha").value = sec.captcha === false ? "false" : "true";
     document.getElementById("setMaxSwitch").value = sec.max_switch || 3;
+    const carousel = API.getSetting("carousel", []);
+    const car0 = Array.isArray(carousel) && carousel[0] ? carousel[0] : {};
+    document.getElementById("setCarTitle").value = car0.title || "";
+    document.getElementById("setCarDesc").value = car0.desc || "";
     document.getElementById("setDsBase").value = ds.api_base || "https://api.deepseek.com";
     document.getElementById("setDsModel").value = ds.model || "deepseek-chat";
     document.getElementById("setDsKey").value = ds.api_key || "";
@@ -31,6 +35,10 @@
       max_switch: Number(document.getElementById("setMaxSwitch").value) || 3,
       switch_warn: true
     });
+    const carTitle = document.getElementById("setCarTitle").value.trim();
+    if (carTitle) {
+      await API.saveSetting("carousel", [{ title: carTitle, desc: document.getElementById("setCarDesc").value.trim() }]);
+    }
     API.toast("页面与安全配置已保存", "success");
   }
 

@@ -20,6 +20,35 @@
     renderCompetitions();
     renderAnnouncements();
     renderMessages();
+    renderCarousel();
+  }
+
+  function renderCarousel() {
+    const box = document.getElementById("carousel");
+    const track = document.getElementById("carouselTrack");
+    const dots = document.getElementById("carouselDots");
+    let slides = API.getSetting("carousel", []);
+    if (!Array.isArray(slides) || !slides.length) {
+      slides = [
+        { title: "尊崇宪法 · 学法守法 知法用法", desc: "第二届“学宪法 讲宪法”校园知识竞赛线上答题平台，欢迎参赛。" },
+        { title: "法治校园 · 依宪治国 依宪执政", desc: "学习宪法知识，弘扬法治精神，做尊法学法守法用法的青年学生。" }
+      ];
+    }
+    track.innerHTML = slides.map((s, i) => `
+      <div class="carousel-slide ${i % 2 ? "alt" : ""}">
+        <div class="c-title">${API.escapeHtml(s.title || "")}</div>
+        <div class="c-desc">${API.escapeHtml(s.desc || s.text || "")}</div>
+      </div>`).join("");
+    dots.innerHTML = slides.map((_, i) => `<button type="button" data-i="${i}" class="${i === 0 ? "on" : ""}"></button>`).join("");
+    box.hidden = slides.length <= 1;
+    let cur = 0;
+    const go = (i) => {
+      cur = (i + slides.length) % slides.length;
+      track.style.transform = `translateX(-${cur * 100}%)`;
+      dots.querySelectorAll("button").forEach((d, k) => d.classList.toggle("on", k === cur));
+    };
+    dots.querySelectorAll("button").forEach((d) => (d.onclick = () => go(Number(d.dataset.i))));
+    if (slides.length > 1) setInterval(() => go(cur + 1), 6000);
   }
 
   async function loadRegistration() {
@@ -179,7 +208,6 @@
     });
   }
 
-  /* 草稿板（本地保存） */
   let boardOpen = false;
   function toggleBoard() {
     boardOpen = !boardOpen;

@@ -1,6 +1,6 @@
 /* 证书管理：模板配置 + 批量签发 */
 (function () {
-  let certs = [];
+  let certs = [], certImage = "";
 
   Admin.register("certs", { load });
 
@@ -13,21 +13,48 @@
     document.getElementById("certSaveTpl").onclick = saveTemplate;
     document.getElementById("certIssueBtn").onclick = batchIssue;
     document.getElementById("certRefresh").onclick = load;
+    document.getElementById("certImg").onchange = onPickImg;
     render();
   }
 
   async function loadTemplate() {
     const tpl = API.getSetting("cert_template", {});
+    certImage = tpl.image || "";
     document.getElementById("certTitle").value = tpl.title || "参赛证书";
     document.getElementById("certOrg").value = tpl.org || API.cfg.ORG_NAME;
     document.getElementById("certFoot").value = tpl.footer || "";
+    const prev = document.getElementById("certImgPreview");
+    if (certImage) { prev.src = certImage; prev.hidden = false; } else { prev.hidden = true; }
+  }
+
+  function onPickImg(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { API.toast("模板图请控制在 2MB 以内", "error"); e.target.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, 1200 / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        certImage = canvas.toDataURL("image/jpeg", 0.8);
+        const prev = document.getElementById("certImgPreview");
+        prev.src = certImage; prev.hidden = false;
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   async function saveTemplate() {
     const tpl = {
       title: document.getElementById("certTitle").value.trim(),
       org: document.getElementById("certOrg").value.trim(),
-      footer: document.getElementById("certFoot").value.trim()
+      footer: document.getElementById("certFoot").value.trim(),
+      image: certImage
     };
     await API.saveSetting("cert_template", tpl);
     API.toast("证书模板已保存", "success");
