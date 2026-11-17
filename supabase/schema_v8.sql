@@ -9,6 +9,9 @@
 -- 在 Supabase Studio → SQL 编辑器执行本脚本即可，可重复执行。
 -- ============================================================
 
+-- 0. 超时交卷标记列：区分主动交卷 / 超时（含兜底）收卷
+alter table public.attempts add column if not exists timed_out boolean not null default false;
+
 -- ----------------------------------------------------------------------------
 -- 1. 保存答题草稿（本人进行中答卷）
 -- ----------------------------------------------------------------------------
@@ -51,6 +54,7 @@ begin
          set status = 'submitted',
              question_count = jsonb_array_length(coalesce(v_row.questions, '[]'::jsonb)),
              duration_seconds = greatest(0, floor(extract(epoch from (now() - v_row.started_at)))::int),
+             timed_out = true,
              submitted_at = now()
        where id = v_row.id;
       v_cnt := v_cnt + 1;
@@ -108,6 +112,7 @@ begin
          set status = 'submitted',
              question_count = jsonb_array_length(coalesce(v_attempt.questions, '[]'::jsonb)),
              duration_seconds = greatest(0, floor(extract(epoch from (now() - v_attempt.started_at)))::int),
+             timed_out = true,
              submitted_at = now()
        where id = v_attempt.id;
       raise exception '本次答题时间已结束，请联系管理员处理';
@@ -244,7 +249,8 @@ begin
 
   update public.attempts set answers = coalesce(p_answers,'{}'::jsonb), detail = v_detail,
     score = v_score, total_score = v_total, correct_count = v_correct, question_count = v_count,
-    duration_seconds = v_duration, submitted_at = now(), status = 'submitted'
+    duration_seconds = v_duration, timed_out = v_timed_out,
+    submitted_at = now(), status = 'submitted'
    where id = v_attempt.id;
 
   return jsonb_build_object('attempt_id', v_attempt.id, 'score', v_score, 'total_score', v_total,
