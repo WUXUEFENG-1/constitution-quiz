@@ -34,6 +34,13 @@
 
 [hidden] { display: none !important; }
 
+body.admin-loading .admin-shell,
+body.admin-loading .page-title,
+body.admin-loading .page-sub,
+body.admin-loading .header-nav { display: none; }
+#adminLoading { display: none; }
+body.admin-loading #adminLoading { display: block; }
+
 html, body { margin: 0; padding: 0; }
 
 body {
