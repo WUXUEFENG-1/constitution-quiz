@@ -21,9 +21,14 @@ window.APP_CONFIG = {
   FOOTER_MAIN: "云南工业信息职业学院学生处、团委、基础教学部、学生青年成长社"
 };
 
-/* 统一校正移动端视口宽度（拼接构造，避免静态元信息被误写） */
+/* 统一校正 / 注入移动端视口宽度（拼接构造，避免静态元信息被误写） */
 (function () {
-  var m = document.querySelector('meta[name="viewport"]');
   var w = 'device' + '-' + 'width';
-  if (m) m.setAttribute('content', 'width=' + w + ', initial-scale=1');
+  var m = document.querySelector('meta[name="viewport"]');
+  if (!m) {
+    m = document.createElement('meta');
+    m.setAttribute('name', 'viewport');
+    document.head.appendChild(m);
+  }
+  m.setAttribute('content', 'width=' + w + ', initial-scale=1');
 })();
