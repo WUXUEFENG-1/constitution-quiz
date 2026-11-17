@@ -1,6 +1,6 @@
 /* 题库管理：CRUD、分类、Excel/CSV 直读、Word/PDF 经 DeepSeek 解析入库 */
 (function () {
-  let questions = [], categories = [], pendingImport = [];
+  let questions = [], categories = [], pendingImport = [], selected = new Set();
 
   Admin.register("questions", { load });
 
@@ -33,6 +33,11 @@
     document.getElementById("qImportBtn").onclick = () => document.getElementById("qFile").click();
     document.getElementById("qTemplateBtn").onclick = downloadTemplate;
     document.getElementById("qFile").onchange = onImportFile;
+    document.getElementById("qBulkDel").onclick = bulkDelete;
+    document.getElementById("qCheckAll").onchange = (e) => {
+      filtered().forEach((q) => e.target.checked ? selected.add(q.id) : selected.delete(q.id));
+      render();
+    };
   }
 
   function filtered() {
@@ -53,9 +58,10 @@
     const rows = filtered();
     document.getElementById("qCount").textContent = `共 ${rows.length} 题`;
     const body = document.getElementById("qBody");
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="8" class="muted" style="text-align:center">暂无题目</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center">暂无题目</td></tr>'; return; }
     body.innerHTML = rows.map((q, i) => `
       <tr>
+        <td><input type="checkbox" class="q-check" data-check="${q.id}" ${selected.has(q.id) ? "checked" : ""}></td>
         <td>${i + 1}</td>
         <td><span class="badge tag">${API.typeLabel(q.qtype)}</span></td>
         <td>${API.escapeHtml(catName(q.category_id))}</td>
@@ -69,7 +75,19 @@
           <button class="link-btn danger" data-act="del" data-id="${q.id}">删除</button>
         </td>
       </tr>`).join("");
+    body.querySelectorAll("[data-check]").forEach((c) => c.onchange = () => {
+      c.checked ? selected.add(c.dataset.check) : selected.delete(c.dataset.check);
+    });
     body.querySelectorAll("[data-act]").forEach((b) => b.onclick = () => onAction(b.dataset.act, b.dataset.id));
+  }
+
+  async function bulkDelete() {
+    if (!selected.size) return API.toast("请先勾选要删除的题目", "error");
+    if (!confirm(`确认删除所选 ${selected.size} 道题目？`)) return;
+    const { error } = await API.sb.from("questions").delete().in("id", [...selected]);
+    if (error) return API.toast("批量删除失败：" + error.message, "error");
+    API.toast(`已删除 ${selected.size} 题`, "success");
+    selected.clear(); load();
   }
 
   function find(id) { return questions.find((q) => q.id === id); }

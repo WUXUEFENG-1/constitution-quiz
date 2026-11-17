@@ -56,7 +56,6 @@
       if (t) t.textContent = cfg[t.getAttribute("data-brand")];
     },
 
-    /* ---------- 登录态 ---------- */
     async getSession() {
       if (!sb) return null;
       const { data } = await sb.auth.getSession();
@@ -85,7 +84,6 @@
     isStaff(role) { return STAFF_ROLES.includes(role); },
     isAdminRole(role) { return role === "admin" || role === "sub_admin"; },
 
-    /* 页面守卫：role = contestant | staff | admin */
     async guard(role) {
       API.configWarning();
       if (!sb) {
@@ -125,7 +123,6 @@
       if (!skipRedirect) location.replace("index.html");
     },
 
-    /* ---------- 改密 ---------- */
     async changePassword(oldPwd, newPwd) {
       const user = await API.currentUser();
       if (!user) throw new Error("请先登录");
@@ -137,7 +134,6 @@
       await API.logAction("修改密码", "");
     },
 
-    /* ---------- 审计 / 作弊 ---------- */
     async logAction(action, detail) {
       try { await sb.rpc("log_action", { p_action: action, p_detail: detail || "" }); } catch (e) {}
     },
@@ -145,7 +141,6 @@
       try { await sb.rpc("record_cheat", { p_kind: kind, p_detail: detail || "" }); } catch (e) {}
     },
 
-    /* ---------- 系统设置 ---------- */
     async loadSettings(force) {
       if (settingsCache && !force) return settingsCache;
       settingsCache = {};
@@ -165,7 +160,6 @@
       settingsCache[key] = value;
     },
 
-    /* ---------- 图形验证码（前端会话校验，防误触与弱机器人） ---------- */
     newCaptcha(canvas) {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
       let code = "";
@@ -174,13 +168,13 @@
       if (canvas && canvas.getContext) {
         const ctx = canvas.getContext("2d");
         const w = canvas.width, h = canvas.height;
-        ctx.fillStyle = "#eef3fb"; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#f4f7fb"; ctx.fillRect(0, 0, w, h);
         ctx.font = "bold 20px monospace"; ctx.textBaseline = "middle";
         for (let i = 0; i < 4; i++) {
-          ctx.fillStyle = ["#1d4ed8", "#0f766e", "#9333ea", "#b45309"][i % 4];
+          ctx.fillStyle = ["#0c2a4d", "#c8102e", "#1d5386", "#b98100"][i % 4];
           ctx.fillText(code[i], 14 + i * 22, h / 2 + (Math.random() * 4 - 2));
         }
-        ctx.strokeStyle = "rgba(29,78,216,.35)";
+        ctx.strokeStyle = "rgba(12,42,77,.35)";
         for (let i = 0; i < 3; i++) {
           ctx.beginPath();
           ctx.moveTo(Math.random() * w, Math.random() * h);
@@ -197,7 +191,6 @@
       return ok;
     },
 
-    /* ---------- DeepSeek 解析 ---------- */
     async deepseekParse(rawText, taskHint) {
       const set = API.getSetting("deepseek", {});
       const key = (set && set.api_key) || "";
@@ -227,7 +220,6 @@
       return list;
     },
 
-    /* ---------- 通用 UI ---------- */
     toast(message, type = "info", ms = 2600) {
       let box = document.querySelector(".toast-box");
       if (!box) { box = document.createElement("div"); box.className = "toast-box"; document.body.appendChild(box); }
@@ -297,7 +289,6 @@
 
     initial(name) { return String(name || "?").trim().charAt(0).toUpperCase(); },
 
-    /* ---------- 文件解析：表格（xlsx/csv）与文本文档（docx/pdf） ---------- */
     async parseTableFile(file) {
       const ext = file.name.split(".").pop().toLowerCase();
       if (ext === "docx" || ext === "pdf") return [];

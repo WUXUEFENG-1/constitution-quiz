@@ -35,8 +35,10 @@
           <span>开始：${API.fmtTime(c.start_at)}</span>
           <span>结束：${API.fmtTime(c.end_at)}</span>
           <span>时长：${c.duration_minutes} 分钟</span>
-          <span>抽题：${c.question_count} 题</span>
-          <span>选项乱序：${c.shuffle ? "是" : "否"}</span>
+          <span>题量：${c.question_count} 题</span>
+          <span>组卷：${c.paper_type === "fixed" ? "固定组卷" : "随机抽题"}</span>
+          <span>申诉：${c.appeal_enabled === false ? "关闭" : "开启"}</span>
+          <span>切屏上限：${c.switch_limit || 3} 次</span>
         </div>
         ${c.rules ? `<div class="comp-rules">竞赛规则：${API.escapeHtml(c.rules)}</div>` : ""}
         ${c.note ? `<div class="comp-note">备注：${API.escapeHtml(c.note)}</div>` : ""}
@@ -83,7 +85,7 @@
   }
 
   function openEdit(c) {
-    const f = c || { title: "", subtitle: "", rules: "", start_at: "", end_at: "", duration_minutes: 30, question_count: 40, shuffle: true, note: "" };
+    const f = c || { title: "", subtitle: "", rules: "", start_at: "", end_at: "", duration_minutes: 30, question_count: 40, shuffle: true, paper_type: "random", appeal_enabled: true, switch_limit: 3, note: "" };
     const body = `
       <div class="field"><label>赛事标题 <span class="req">*</span></label><input id="fTitle" value="${API.escapeHtml(f.title)}"></div>
       <div class="field"><label>副标题</label><input id="fSub" value="${API.escapeHtml(f.subtitle)}"></div>
@@ -93,9 +95,17 @@
       </div>
       <div class="grid-2">
         <div class="field"><label>答题时长（分钟）</label><input type="number" id="fDur" min="1" value="${f.duration_minutes}"></div>
-        <div class="field"><label>抽题数量</label><input type="number" id="fCount" min="1" value="${f.question_count}"></div>
+        <div class="field"><label>题量</label><input type="number" id="fCount" min="1" value="${f.question_count}"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>组卷方式</label><select id="fPaper">
+          <option value="random" ${f.paper_type !== "fixed" ? "selected" : ""}>随机抽题组卷</option>
+          <option value="fixed" ${f.paper_type === "fixed" ? "selected" : ""}>固定组卷（按题库顺序）</option>
+        </select></div>
+        <div class="field"><label>切屏次数上限</label><input type="number" id="fSwitch" min="1" max="20" value="${f.switch_limit || 3}"></div>
       </div>
       <div class="field"><label><input type="checkbox" id="fShuffle" ${f.shuffle ? "checked" : ""}> 随机打乱题目 / 选项顺序</label></div>
+      <div class="field"><label><input type="checkbox" id="fAppeal" ${f.appeal_enabled !== false ? "checked" : ""}> 开启赛后申诉</label></div>
       <div class="field"><label>竞赛规则</label><textarea id="fRules" rows="3">${API.escapeHtml(f.rules)}</textarea></div>
       <div class="field"><label>备注</label><input id="fNote" value="${API.escapeHtml(f.note)}"></div>`;
     Admin.openModal(c ? "编辑赛事" : "创建竞赛", body, [
@@ -115,6 +125,9 @@
       duration_minutes: Number(document.getElementById("fDur").value) || 30,
       question_count: Number(document.getElementById("fCount").value) || 40,
       shuffle: document.getElementById("fShuffle").checked,
+      paper_type: document.getElementById("fPaper").value,
+      appeal_enabled: document.getElementById("fAppeal").checked,
+      switch_limit: Number(document.getElementById("fSwitch").value) || 3,
       rules: document.getElementById("fRules").value.trim(),
       note: document.getElementById("fNote").value.trim(),
       updated_at: new Date().toISOString()
