@@ -20,7 +20,7 @@
     (cheats || []).forEach((c) => {
       if (!c.user_id) return;
       if (!switchMap[c.user_id]) switchMap[c.user_id] = 0;
-      if (["switch", "blur", "focus_lost"].includes(c.kind)) switchMap[c.user_id] += (c.count || 1);
+      if (["switch", "blur", "fullscreen", "resize", "focus_lost"].includes(c.kind)) switchMap[c.user_id] += (c.count || 1);
     });
     document.getElementById("monCount").textContent = `共 ${rows.length} 条答卷记录`;
     const body = document.getElementById("monBody");
@@ -50,7 +50,7 @@
     }).join("");
   }
 
-  const KIND = { switch: "切屏", blur: "窗口失焦", copy: "复制题目", focus_lost: "失去焦点", violation: "违规标记" };
+  const KIND = { switch: "切屏", blur: "窗口失焦", fullscreen: "退出全屏", resize: "窗口缩放", copy: "复制题目", focus_lost: "失去焦点", violation: "违规标记" };
 
   async function loadCheat() {
     const { data } = await API.sb.from("cheat_events")
