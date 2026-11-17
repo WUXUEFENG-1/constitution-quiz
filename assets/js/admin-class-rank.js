@@ -7,6 +7,67 @@
 
   Admin.register("classrank", { load });
 
+  /* 专业简写 → 花名册标准专业名（key 为可命中的简写关键词，越长越优先） */
+  const MAJOR_ALIAS = [
+    { standard: "计算机网络技术", keys: ["计算机网络", "网络技术", "网络", "计算机"] },
+    { standard: "软件技术", keys: ["软件"] },
+    { standard: "人工智能技术应用", keys: ["人工智能", "智能应用", "ai"] },
+    { standard: "数控技术", keys: ["数控"] },
+    { standard: "数字化设计与制造技术", keys: ["数字化设计", "设计与制造", "数字化", "数设", "数造"] },
+    { standard: "机电一体化技术", keys: ["机电一体化", "机电", "一体化"] },
+    { standard: "工业机器人技术", keys: ["工业机器人", "机器人"] },
+    { standard: "电气自动化技术", keys: ["电气自动化", "电气"] },
+    { standard: "工业互联网技术", keys: ["工业互联网", "互联网", "工互"] },
+    { standard: "新能源汽车技术", keys: ["新能源汽车", "新能源车", "汽车"] },
+    { standard: "新能源汽车检测与维修", keys: ["汽车检测", "检测与维修", "汽修", "汽检", "维修"] },
+    { standard: "智能焊接技术", keys: ["智能焊接", "焊接"] },
+    { standard: "机械制造及自动化", keys: ["机械制造", "机械", "机造"] },
+    { standard: "烹饪工艺与营养", keys: ["烹饪工艺", "烹饪", "餐营", "营养"] }
+  ];
+
+  let rosterIndex = null;
+  function buildIndex() {
+    if (rosterIndex) return rosterIndex;
+    rosterIndex = (window.CLASS_ROSTER || []).map(([dept, full, total]) => {
+      const { major, num } = parseClass(full);
+      return { dept, full, major, num, total };
+    });
+    return rosterIndex;
+  }
+
+  function parseClass(raw) {
+    const t = String(raw || "").trim().replace(/\s+/g, "").replace(/班$/, "");
+    const m = t.match(/(\d{2,4})/);
+    if (!m) return { major: t, num: "" };
+    return { major: t.slice(0, m.index), num: m[1] };
+  }
+
+  /* 选手填写的简写班级（如 计算机2501 / 计算机网络2501）归一到花名册标准班名 */
+  function resolveClass(raw) {
+    const idx = buildIndex();
+    const clean = String(raw || "").trim().replace(/\s+/g, "");
+    if (!clean) return "未填写";
+    const exact = idx.find((r) => r.full === clean || r.full === clean + "班");
+    if (exact) return exact.full;
+    const { major, num } = parseClass(clean);
+    if (!num) return normalizeClass(raw);
+    const cands = idx.filter((r) => r.num === num);
+    let hit = cands.find((r) => major && (r.major.includes(major) || major.includes(r.major)));
+    if (!hit) {
+      let bestLen = 0;
+      cands.forEach((r) => {
+        const g = MAJOR_ALIAS.find((a) => a.standard === r.major);
+        if (!g) return;
+        g.keys.forEach((k) => {
+          if (major.toLowerCase().includes(k.toLowerCase()) && k.length > bestLen) {
+            bestLen = k.length; hit = r;
+          }
+        });
+      });
+    }
+    return hit ? hit.full : normalizeClass(raw);
+  }
+
   async function load() {
     document.getElementById("classRankRefresh").onclick = load;
     document.getElementById("classRankExport").onclick = exportCSV;
@@ -44,7 +105,7 @@
 
     // 报名人数归集
     regs.forEach((p) => {
-      const cls = normalizeClass(p.class_name);
+      const cls = resolveClass(p.class_name);
       if (!roster[cls]) roster[cls] = { dept: p.department, total: 0, reg: 0, sub: 0, scoreSum: 0, pctSum: 0, extra: true };
       roster[cls].reg += 1;
     });
@@ -53,7 +114,7 @@
     regs.forEach((p) => {
       const att = best.get(p.id);
       if (!att) return;
-      const cls = normalizeClass(p.class_name);
+      const cls = resolveClass(p.class_name);
       const e = roster[cls];
       e.sub += 1;
       e.scoreSum += Number(att.score || 0);
