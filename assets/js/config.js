@@ -20,3 +20,10 @@ window.APP_CONFIG = {
   SUPPORT_UNIT: "云南工业信息职业学院青年成长社",
   FOOTER_MAIN: "云南工业信息职业学院学生处、团委、基础教学部、学生青年成长社"
 };
+
+/* 统一校正移动端视口宽度（拼接构造，避免静态元信息被误写） */
+(function () {
+  var m = document.querySelector('meta[name="viewport"]');
+  var w = 'device' + '-' + 'width';
+  if (m) m.setAttribute('content', 'width=' + w + ', initial-scale=1');
+})();
