@@ -14,6 +14,10 @@
     document.getElementById("certIssueBtn").onclick = batchIssue;
     document.getElementById("certRefresh").onclick = load;
     document.getElementById("certImg").onchange = onPickImg;
+    ["certTitle", "certOrg", "certFoot"].forEach((id) => {
+      document.getElementById(id).oninput = updatePreview;
+    });
+    updatePreview();
     render();
   }
 
@@ -25,6 +29,24 @@
     document.getElementById("certFoot").value = tpl.footer || "";
     const prev = document.getElementById("certImgPreview");
     if (certImage) { prev.src = certImage; prev.hidden = false; } else { prev.hidden = true; }
+  }
+
+  function updatePreview() {
+    const title = document.getElementById("certTitle").value.trim() || "参赛证书";
+    const org = document.getElementById("certOrg").value.trim();
+    const foot = document.getElementById("certFoot").value.trim();
+    document.getElementById("pvTitle").textContent = title;
+    document.getElementById("pvOrg").textContent = org;
+    document.getElementById("pvFoot").textContent = foot;
+    document.getElementById("pvDate").textContent = API.fmtTime(new Date().toISOString()).slice(0, 10);
+    const box = document.getElementById("certPreview");
+    if (certImage) {
+      box.style.backgroundImage = `url(${certImage})`;
+      box.style.color = "#fff";
+    } else {
+      box.style.backgroundImage = "";
+      box.style.color = "";
+    }
   }
 
   function onPickImg(e) {
@@ -43,6 +65,7 @@
         certImage = canvas.toDataURL("image/jpeg", 0.8);
         const prev = document.getElementById("certImgPreview");
         prev.src = certImage; prev.hidden = false;
+        updatePreview();
       };
       img.src = reader.result;
     };
