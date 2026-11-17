@@ -3,6 +3,7 @@
   API.configWarning();
   const form = document.getElementById("signupForm");
   const btn = document.getElementById("signupBtn");
+  document.getElementById("department").innerHTML = API.deptOptions("");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -18,7 +19,7 @@
 
     if (!fullName) return API.toast("请填写姓名", "error");
     if (!/^[A-Za-z0-9_-]{4,20}$/.test(studentNo)) return API.toast("学号应为 4-20 位字母或数字", "error");
-    if (!department || !className) return API.toast("请填写系部和班级", "error");
+    if (!department || !className) return API.toast("请选择学院并填写班级", "error");
     if (phone && !/^1[3-9]\d{9}$/.test(phone)) return API.toast("手机号格式不正确", "error");
     if (password.length < 6) return API.toast("密码至少 6 位", "error");
     if (password !== password2) return API.toast("两次输入的密码不一致", "error");
