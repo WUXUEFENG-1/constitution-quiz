@@ -1,8 +1,8 @@
-/* 正式答题 v2：答题卡、草稿暂存、倒计时、切屏检测、提交后跳转成绩页 */
+/* 正式答题 v3：答题卡（已答/未答/标记）、标记本题、上一题/下一题、草稿暂存、倒计时、切屏检测、二次确认交卷 */
 (function () {
-  let questions = [], answers = {}, attemptId = null, remaining = 0;
+  let questions = [], answers = {}, marks = {}, attemptId = null, remaining = 0;
   let tickTimer = null, submitting = false, storeKey = "";
-  let switchCount = 0;
+  let switchCount = 0, current = 0, timeoutWarned = false;
 
   init();
 
@@ -17,10 +17,17 @@
     document.getElementById("exitBtn").onclick = () => {
       if (confirm("答题尚未提交，确定退出？已作答内容会保留，可从答题入口继续。")) location.href = "home.html";
     };
-    document.getElementById("topSubmit").onclick = doSubmit;
-    document.getElementById("submitBtn").onclick = doSubmit;
+    document.getElementById("topSubmit").onclick = requestSubmit;
+    document.getElementById("submitBtn").onclick = requestSubmit;
     document.getElementById("draftBtn").onclick = toggleBoard;
     document.getElementById("cheatOk").onclick = () => document.getElementById("cheatModal").hidden = true;
+
+    document.getElementById("markBtn").onclick = toggleMark;
+    document.getElementById("prevBtn").onclick = () => jump(current - 1);
+    document.getElementById("nextBtn").onclick = () => jump(current + 1);
+    document.getElementById("submitCancel").onclick = () => { document.getElementById("submitModal").hidden = true; };
+    document.getElementById("submitConfirm").onclick = () => { document.getElementById("submitModal").hidden = true; confirmSubmit(false); };
+    document.getElementById("timeoutOk").onclick = () => { document.getElementById("timeoutModal").hidden = true; };
 
     bindCheat();
     await start();
@@ -71,14 +78,22 @@
   function restoreAnswers() {
     try {
       const raw = localStorage.getItem(storeKey);
-      if (raw) { const saved = JSON.parse(raw); if (saved && typeof saved === "object") answers = saved; }
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved && typeof saved === "object") {
+          answers = saved.answers || {};
+          marks = saved.marks || {};
+        }
+      }
     } catch (e) {}
   }
-  function persist() { try { localStorage.setItem(storeKey, JSON.stringify(answers)); } catch (e) {} }
+  function persist() {
+    try { localStorage.setItem(storeKey, JSON.stringify({ answers, marks })); } catch (e) {}
+  }
 
   function render() {
     document.getElementById("qList").innerHTML = questions.map((q, i) => `
-      <div class="q-item ${isAnswered(q.id) ? "is-answered" : ""}" id="q-${q.id}" data-id="${q.id}">
+      <div class="q-item ${isAnswered(q.id) ? "is-answered" : ""} ${marks[q.id] ? "is-marked" : ""}" id="q-${q.id}" data-id="${q.id}">
         <div class="q-head">
           <span class="q-index">${i + 1}</span>
           <div class="q-text"><span class="badge tag">${API.typeLabel(q.qtype)}</span>${API.escapeHtml(q.content)}</div>
@@ -140,6 +155,7 @@
           persist(); updateProgress(); renderSheet();
         });
       });
+      item.addEventListener("click", () => { current = questions.findIndex((q) => q.id === item.dataset.id); updateMarkBtn(); });
     });
   }
 
@@ -152,11 +168,46 @@
   function updateProgress() { document.getElementById("progressText").textContent = `已作答 ${answeredCount()} / ${questions.length}`; }
 
   function renderSheet() {
-    document.getElementById("sheet").innerHTML = questions.map((q, i) =>
-      `<button class="sheet-cell ${isAnswered(q.id) ? "done" : ""}" data-jump="${q.id}">${i + 1}</button>`).join("");
+    document.getElementById("sheet").innerHTML = questions.map((q, i) => {
+      const cls = ["sheet-cell"];
+      if (marks[q.id]) cls.push("marked");
+      if (isAnswered(q.id)) cls.push("done"); else cls.push("todo");
+      return `<button class="${cls.join(" ")}" data-jump="${q.id}">${i + 1}</button>`;
+    }).join("");
     document.querySelectorAll("[data-jump]").forEach((b) => {
-      b.onclick = () => document.getElementById("q-" + b.dataset.jump).scrollIntoView({ behavior: "smooth", block: "start" });
+      b.onclick = () => {
+        current = questions.findIndex((q) => q.id === b.dataset.jump);
+        jump(current);
+      };
     });
+  }
+
+  function jump(i) {
+    if (!questions.length) return;
+    current = Math.max(0, Math.min(questions.length - 1, i));
+    const item = document.getElementById("q-" + questions[current].id);
+    if (item) item.scrollIntoView({ behavior: "smooth", block: "start" });
+    updateMarkBtn();
+  }
+
+  function toggleMark() {
+    const q = questions[current];
+    if (!q) return;
+    marks[q.id] = !marks[q.id];
+    if (!marks[q.id]) delete marks[q.id];
+    const item = document.getElementById("q-" + q.id);
+    if (item) item.classList.toggle("is-marked", !!marks[q.id]);
+    persist(); renderSheet(); updateMarkBtn();
+  }
+
+  function updateMarkBtn() {
+    const q = questions[current];
+    const btn = document.getElementById("markBtn");
+    if (!q || !btn) return;
+    const on = !!marks[q.id];
+    btn.textContent = on ? "★ 已标记" : "☆ 标记本题";
+    btn.style.color = on ? "#fff" : "";
+    btn.style.background = on ? "var(--amber)" : "";
   }
 
   function startTimer() {
@@ -169,16 +220,20 @@
     clearInterval(tickTimer);
     tickTimer = setInterval(() => {
       remaining--;
+      if (remaining === 60 && !timeoutWarned) {
+        timeoutWarned = true;
+        document.getElementById("timeoutText").textContent = "答题时间仅剩 1 分钟，请尽快完成作答并交卷。";
+        document.getElementById("timeoutModal").hidden = false;
+      }
       if (remaining <= 0) {
         clearInterval(tickTimer); render1();
         API.toast("答题时间到，正在自动交卷…", "error", 3000);
-        doSubmit(true); return;
+        confirmSubmit(true); return;
       }
       render1();
     }, 1000);
   }
 
-  /* 防作弊：切屏 / 失焦 / 复制记录并提醒 */
   function bindCheat() {
     const sec = API.getSetting("security", {});
     const maxSwitch = Number(sec.max_switch || 3);
@@ -198,14 +253,17 @@
     document.addEventListener("copy", () => report("copy", "复制题目内容"));
   }
 
-  async function doSubmit(auto) {
+  function requestSubmit() {
     if (submitting) return;
-    const answered = answeredCount();
-    if (!auto) {
-      const unanswered = questions.length - answered;
-      const tip = unanswered > 0 ? `还有 ${unanswered} 题未作答，` : "";
-      if (!confirm(`${tip}确定提交答卷？提交后不可修改。`)) return;
-    }
+    const unanswered = questions.length - answeredCount();
+    document.getElementById("submitTip").textContent = unanswered > 0
+      ? `还有 ${unanswered} 题未作答，确定提交答卷？提交后不可修改。`
+      : "已全部作答，确认提交当前答卷？提交后不可修改。";
+    document.getElementById("submitModal").hidden = false;
+  }
+
+  async function confirmSubmit(auto) {
+    if (submitting) return;
     submitting = true;
     document.getElementById("topSubmit").disabled = true;
     document.getElementById("submitBtn").disabled = true;
