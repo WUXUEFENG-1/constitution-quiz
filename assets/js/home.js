@@ -1,4 +1,4 @@
-/* 选手中心：报名、赛事、公告、快捷入口、草稿板 */
+/* 选手中心：报名、赛事、公告、消息、快捷入口、草稿板 */
 (function () {
   let profile = null, registration = null, competitions = [], announcements = [];
 
@@ -180,6 +180,28 @@
     box.querySelectorAll("[data-join]").forEach((b) => b.onclick = doRegister);
   }
 
+  function parseAtt(raw) {
+    try {
+      const a = JSON.parse(raw || "[]");
+      return Array.isArray(a) ? a : [];
+    } catch (e) { return []; }
+  }
+
+  function fmtSize(b) {
+    b = Number(b) || 0;
+    if (b < 1024) return b + "B";
+    if (b < 1048576) return (b / 1024).toFixed(1) + "KB";
+    return (b / 1048576).toFixed(1) + "MB";
+  }
+
+  function attLinks(atts) {
+    if (!atts || !atts.length) return "";
+    const links = atts.map((a) =>
+      `<a class="link-btn" href="${a.data}" download="${API.escapeHtml(a.name)}" target="_blank" rel="noopener" style="margin-right:14px;display:inline-block">附件：${API.escapeHtml(a.name)}（${fmtSize(a.size)}）</a>`
+    ).join("");
+    return `<div class="news-files" style="margin-top:6px">${links}</div>`;
+  }
+
   function renderAnnouncements() {
     const box = document.getElementById("annList");
     if (!announcements.length) { box.innerHTML = '<div class="empty-state" style="padding:20px">暂无公告</div>'; return; }
@@ -188,9 +210,11 @@
         <div class="t">${a.pinned ? '<span class="badge red pinned-tag" style="margin-right:6px">置顶</span>' : ""}${API.escapeHtml(a.title)}</div>
         <div class="meta">${{ notice: "通知", rule: "规则", result: "结果" }[a.kind] || "通知"} · ${API.fmtTime(a.created_at)}</div>
         <div class="body">${API.escapeHtml(a.content)}</div>
+        ${attLinks(parseAtt(a.attachments))}
       </div>`).join("");
   }
 
+  /* 草稿板（本地保存） */
   let boardOpen = false;
   function toggleBoard() {
     boardOpen = !boardOpen;
