@@ -20,6 +20,22 @@
     renderCompetitions();
     renderAnnouncements();
     renderCarousel();
+    await autoEnterExam();
+  }
+
+  /* 已有进行中答卷且赛事在开放时段：登录后自动回到答题页续答 */
+  async function autoEnterExam() {
+    await API.flushExpired();
+    const user = await API.currentUser();
+    if (!user) return;
+    const { data: att } = await API.sb
+      .from("attempts").select("status").eq("user_id", user.id).maybeSingle();
+    if (!att || att.status !== "in_progress") return;
+    const now = Date.now();
+    const open = competitions.find((c) => c.status === "open"
+      && (!c.start_at || new Date(c.start_at).getTime() <= now)
+      && (!c.end_at || new Date(c.end_at).getTime() >= now));
+    if (open) location.replace("exam.html");
   }
 
   function renderCarousel() {
