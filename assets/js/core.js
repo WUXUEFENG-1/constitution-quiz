@@ -1,5 +1,5 @@
 /* ============================================================
- * 公共层：Supabase 初始化、登录态、通用工具
+ * 公共层：Supabase 初始化、登录态、验证码、改密、设置、通用工具
  * ============================================================ */
 (function (global) {
   const cfg = global.APP_CONFIG || {};
@@ -18,17 +18,24 @@
     });
   }
 
+  const ROLE_LABELS = {
+    contestant: "选手", admin: "系统管理员", sub_admin: "子管理员",
+    questioner: "出题员", proctor: "监考员", statistician: "统计员"
+  };
+  const STAFF_ROLES = ["admin", "sub_admin", "questioner", "proctor", "statistician"];
+  let settingsCache = null;
+
   const API = {
     cfg,
     configured,
     sb,
+    ROLE_LABELS,
+    STAFF_ROLES,
 
-    /* 学号 → 登录邮箱 */
     toEmail(account) {
       return String(account || "").trim().toLowerCase() + "@" + (cfg.DOMAIN_SUFFIX || "xfjs.local");
     },
 
-    /* 未配置 Supabase 时，页面顶部提示 */
     configWarning() {
       if (configured) return;
       const bar = document.createElement("div");
@@ -39,7 +46,6 @@
       document.body.prepend(bar);
     },
 
-    /* 顶部品牌信息 */
     applyBrand(root) {
       const scope = root || document;
       scope.querySelectorAll("[data-brand]").forEach((el) => {
@@ -68,14 +74,18 @@
       if (!user) return null;
       const { data, error } = await sb
         .from("profiles")
-        .select("id, full_name, student_no, department, class_name, phone, role")
+        .select("id, full_name, student_no, department, class_name, phone, role, status, ban_reason")
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
-      return data || { id: user.id, role: "contestant", full_name: "", student_no: "" };
+      return data || { id: user.id, role: "contestant", full_name: "", student_no: "", status: "active" };
     },
 
-    /* 页面守卫：role = "contestant" | "admin" | null */
+    roleLabel(r) { return ROLE_LABELS[r] || r || "选手"; },
+    isStaff(role) { return STAFF_ROLES.includes(role); },
+    isAdminRole(role) { return role === "admin" || role === "sub_admin"; },
+
+    /* 页面守卫：role = contestant | staff | admin */
     async guard(role) {
       API.configWarning();
       if (!sb) {
@@ -86,35 +96,141 @@
       }
       const user = await API.currentUser();
       if (!user) {
-        location.replace("index.html?redirect=" + encodeURIComponent(location.pathname.split("/").pop() || "dashboard.html"));
+        location.replace("index.html?redirect=" + encodeURIComponent(location.pathname.split("/").pop() || "home.html"));
         throw new Error("no-session");
       }
       const profile = await API.getProfile();
-      if (role === "admin" && profile.role !== "admin") {
-        location.replace("dashboard.html");
+      if (profile.status === "banned") {
+        await API.signOut(true);
+        throw new Error("banned");
+      }
+      if (role === "admin" && !API.isAdminRole(profile.role)) {
+        location.replace(API.isStaff(profile.role) ? "admin.html" : "home.html");
         throw new Error("not-admin");
       }
-      if (role === "contestant" && profile.role === "admin") {
+      if (role === "staff" && !API.isStaff(profile.role)) {
+        location.replace("home.html");
+        throw new Error("not-staff");
+      }
+      if (role === "contestant" && API.isStaff(profile.role)) {
         location.replace("admin.html");
-        throw new Error("is-admin");
+        throw new Error("is-staff");
       }
       API.applyBrand();
       return { user, profile };
     },
 
-    async signOut() {
+    async signOut(skipRedirect) {
       if (sb) await sb.auth.signOut();
-      location.replace("index.html");
+      if (!skipRedirect) location.replace("index.html");
+    },
+
+    /* ---------- 改密 ---------- */
+    async changePassword(oldPwd, newPwd) {
+      const user = await API.currentUser();
+      if (!user) throw new Error("请先登录");
+      const email = user.email || API.toEmail("");
+      const { error: vErr } = await sb.auth.signInWithPassword({ email, password: oldPwd });
+      if (vErr) throw new Error("原密码不正确");
+      const { error } = await sb.auth.updateUser({ password: newPwd });
+      if (error) throw error;
+      await API.logAction("修改密码", "");
+    },
+
+    /* ---------- 审计 / 作弊 ---------- */
+    async logAction(action, detail) {
+      try { await sb.rpc("log_action", { p_action: action, p_detail: detail || "" }); } catch (e) {}
+    },
+    async recordCheat(kind, detail) {
+      try { await sb.rpc("record_cheat", { p_kind: kind, p_detail: detail || "" }); } catch (e) {}
+    },
+
+    /* ---------- 系统设置 ---------- */
+    async loadSettings(force) {
+      if (settingsCache && !force) return settingsCache;
+      settingsCache = {};
+      if (!sb) return settingsCache;
+      const { data } = await sb.from("app_settings").select("key,value");
+      (data || []).forEach((r) => { settingsCache[r.key] = r.value; });
+      return settingsCache;
+    },
+    getSetting(key, fallback) {
+      const v = settingsCache && settingsCache[key];
+      return v == null ? fallback : v;
+    },
+    async saveSetting(key, value) {
+      const { error } = await sb.from("app_settings").upsert({ key, value, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      settingsCache = settingsCache || {};
+      settingsCache[key] = value;
+    },
+
+    /* ---------- 图形验证码（前端会话校验，防误触与弱机器人） ---------- */
+    newCaptcha(canvas) {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      sessionStorage.setItem("xfjs_captcha", code);
+      if (canvas && canvas.getContext) {
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width, h = canvas.height;
+        ctx.fillStyle = "#eef3fb"; ctx.fillRect(0, 0, w, h);
+        ctx.font = "bold 20px monospace"; ctx.textBaseline = "middle";
+        for (let i = 0; i < 4; i++) {
+          ctx.fillStyle = ["#1d4ed8", "#0f766e", "#9333ea", "#b45309"][i % 4];
+          ctx.fillText(code[i], 14 + i * 22, h / 2 + (Math.random() * 4 - 2));
+        }
+        ctx.strokeStyle = "rgba(29,78,216,.35)";
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(Math.random() * w, Math.random() * h);
+          ctx.lineTo(Math.random() * w, Math.random() * h);
+          ctx.stroke();
+        }
+      }
+      return code;
+    },
+    checkCaptcha(input) {
+      const expect = sessionStorage.getItem("xfjs_captcha") || "";
+      const ok = expect && String(input || "").trim().toUpperCase() === expect;
+      sessionStorage.removeItem("xfjs_captcha");
+      return ok;
+    },
+
+    /* ---------- DeepSeek 解析 ---------- */
+    async deepseekParse(rawText, taskHint) {
+      const set = API.getSetting("deepseek", {});
+      const key = (set && set.api_key) || "";
+      const base = (set && set.api_base) || "https://api.deepseek.com";
+      const model = (set && set.model) || "deepseek-chat";
+      if (!key) throw new Error("尚未配置 DeepSeek API Key（管理员在系统设置中填写）");
+      const sys = "你是题库解析助手。把输入文本解析为结构化题目 JSON，只输出 JSON 数组，不要解释。" +
+        "每项字段：qtype(single/multiple/judge/fill), content(题干), options(字符串数组，判断题固定['正确','错误']), " +
+        "answer(数组：单选/判断填['A'/'B']，多选填字母数组，填空填空位答案数组), score(数字), analysis(解析)。" + taskHint;
+      const resp = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+        body: JSON.stringify({
+          model, temperature: 0.1, response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: sys },
+            { role: "user", content: rawText.slice(0, 12000) }
+          ]
+        })
+      });
+      if (!resp.ok) throw new Error("DeepSeek 请求失败：HTTP " + resp.status);
+      const j = await resp.json();
+      const text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || "{}";
+      const parsed = JSON.parse(text);
+      const list = parsed.questions || parsed.items || (Array.isArray(parsed) ? parsed : []);
+      if (!Array.isArray(list)) throw new Error("解析结果格式不正确");
+      return list;
     },
 
     /* ---------- 通用 UI ---------- */
     toast(message, type = "info", ms = 2600) {
       let box = document.querySelector(".toast-box");
-      if (!box) {
-        box = document.createElement("div");
-        box.className = "toast-box";
-        document.body.appendChild(box);
-      }
+      if (!box) { box = document.createElement("div"); box.className = "toast-box"; document.body.appendChild(box); }
       const item = document.createElement("div");
       item.className = "toast toast-" + type;
       item.textContent = message;
@@ -151,7 +267,6 @@
       return (h > 0 ? API.pad(h) + ":" : "") + API.pad(m) + ":" + API.pad(s);
     },
 
-    /* CSV 导出（Excel 可直接打开，带 BOM 防中文乱码） */
     downloadCSV(filename, rows) {
       const esc = (v) => {
         const s = String(v == null ? "" : v);
@@ -166,27 +281,69 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1500);
     },
 
-    /* 题型中文名 */
     typeLabel(t) {
       return ({ single: "单选题", multiple: "多选题", judge: "判断题", fill: "填空题" })[t] || t;
     },
 
-    /* 选项字母 */
     letters: ["A", "B", "C", "D", "E", "F"],
 
-    /* 把答案数组格式化成可读文本 */
     answerText(qtype, answer) {
       const arr = Array.isArray(answer) ? answer : answer == null ? [] : [answer];
       if (!arr.length) return "（未作答）";
       if (qtype === "judge") return arr[0] === "A" ? "正确" : "错误";
       if (qtype === "fill") return arr.join(" / ");
       return arr.join("");
+    },
+
+    initial(name) { return String(name || "?").trim().charAt(0).toUpperCase(); },
+
+    /* ---------- 文件解析：表格（xlsx/csv）与文本文档（docx/pdf） ---------- */
+    async parseTableFile(file) {
+      const ext = file.name.split(".").pop().toLowerCase();
+      if (ext === "docx" || ext === "pdf") return [];
+      const buf = await file.arrayBuffer();
+      let wb;
+      if (ext === "csv") {
+        let text;
+        try { text = new TextDecoder("utf-8").decode(buf); }
+        catch (e) { text = new TextDecoder("gb18030").decode(buf); }
+        wb = XLSX.read(text, { type: "string" });
+      } else {
+        wb = XLSX.read(buf, { type: "array" });
+      }
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+      if (rows.length < 2) return [];
+      const headers = rows[0].map((h) => String(h).trim());
+      return rows.slice(1).filter((r) => r.some((c) => String(c).trim() !== ""))
+        .map((r) => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
+    },
+
+    async extractDocText(file) {
+      const ext = file.name.split(".").pop().toLowerCase();
+      const buf = await file.arrayBuffer();
+      if (ext === "docx") {
+        if (typeof mammoth === "undefined") throw new Error("Word 解析库未加载");
+        const res = await mammoth.extractRawText({ arrayBuffer: buf });
+        return res.value || "";
+      }
+      if (ext === "pdf") {
+        if (typeof pdfjsLib === "undefined") throw new Error("PDF 解析库未加载");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        let out = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          out += tc.items.map((it) => it.str).join(" ") + "\n";
+        }
+        return out;
+      }
+      return new TextDecoder("utf-8").decode(buf);
     }
   };
 
   global.API = API;
 
-  document.addEventListener("DOMContentLoaded", () => {
-    API.applyBrand();
-  });
+  document.addEventListener("DOMContentLoaded", () => { API.applyBrand(); });
 })(window);
