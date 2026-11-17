@@ -169,7 +169,7 @@
           <span>时长：<b>${c.duration_minutes ? c.duration_minutes + " 分钟" : "待定"}</b></span>
           <span>题量：<b>${c.question_count ? c.question_count + " 题" : "待定"}</b></span>
         </div>
-        ${c.rules ? `<div class="section-note" style="margin-top:10px">规则：${API.escapeHtml(c.rules)}</div>` : ""}
+        ${c.rules ? `<div class="section-note" style="margin-top:10px">规则：${API.renderRules(c.rules)}</div>` : ""}
         <div class="btn-row" style="margin-top:12px">
           ${!registration ? `<button class="btn soft sm" data-join="${c.id}">报名参赛</button>` : ""}
           ${c.status === "open"
