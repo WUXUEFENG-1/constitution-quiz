@@ -62,7 +62,7 @@
     if (next === "open") {
       const { data: others } = await API.sb.from("competitions").select("id").neq("id", c.id).eq("status", "open");
       if ((others || []).length) {
-        if (!confirm("已有其他赛事处于开放状态，开放本场将自动关闭其他赛事，是否继续？")) return;
+        if (!await API.confirm("已有其他赛事处于开放状态，开放本场将自动关闭其他赛事，是否继续？")) return;
         await API.sb.from("competitions").update({ status: "closed" }).eq("status", "open");
       }
     }
@@ -73,13 +73,13 @@
   }
 
   async function finish(c) {
-    if (!confirm(`确认结束赛事「${c.title}」？`)) return;
+    if (!await API.confirm(`确认结束赛事「${c.title}」？`)) return;
     await API.sb.from("competitions").update({ status: "finished", updated_at: new Date().toISOString() }).eq("id", c.id);
     API.toast("赛事已结束", "success"); load();
   }
 
   async function del(c) {
-    if (!confirm(`确认删除赛事「${c.title}」？关联答卷不会删除。`)) return;
+    if (!await API.confirm(`确认删除赛事「${c.title}」？关联答卷不会删除。`)) return;
     await API.sb.from("competitions").delete().eq("id", c.id);
     API.toast("已删除", "success"); load();
   }

@@ -72,7 +72,7 @@
       </tr>`;
     }).join("");
     body.querySelectorAll("[data-ban]").forEach((b) => b.onclick = async () => {
-      if (!confirm("确认封禁该账号？")) return;
+      if (!await API.confirm("确认封禁该账号？")) return;
       const { error } = await API.sb.rpc("admin_set_status", { p_id: b.dataset.ban, p_status: "banned", p_reason: "答题异常行为" });
       if (error) return API.toast("操作失败：" + error.message, "error");
       API.toast("已封禁", "success"); loadCheat();

@@ -110,7 +110,7 @@
       .order("score", { ascending: false, nullsFirst: false });
     const rows = attempts || [];
     if (!rows.length) return API.toast("暂无可签发证书的已交卷成绩", "error");
-    if (!confirm(`将为 ${rows.length} 名已交卷选手批量签发证书，是否继续？`)) return;
+    if (!await API.confirm(`将为 ${rows.length} 名已交卷选手批量签发证书，是否继续？`)) return;
     let ok = 0, fail = 0;
     for (let i = 0; i < rows.length; i++) {
       const a = rows[i];
