@@ -82,7 +82,8 @@
 
   function bodyHtml(q) {
     if (q.qtype === "fill") {
-      const n = Math.max(1, (q.options && q.options.length) || (q.answer ? q.answer.length : 1));
+      const blanks = (q.content.match(/_{2,}/g) || []).length;
+      const n = Math.max(1, blanks || (q.options && q.options.length) || 1);
       return `<div class="fill-input">${Array.from({ length: n })
         .map((_, k) => `<input type="text" data-fill="${k}" placeholder="第 ${k + 1} 空">`)
         .join("")}</div>`;
@@ -160,11 +161,13 @@
   function isCorrect(q, userAnswer) {
     const correct = (Array.isArray(q.answer) ? q.answer : [q.answer]).map(norm);
     const mine = (Array.isArray(userAnswer) ? userAnswer : [userAnswer]).map(norm).filter(Boolean);
+    if (!mine.length) return false;
+    if (q.qtype === "fill") return mine.every((m) => correct.includes(m));
     if (mine.length !== correct.length) return false;
-    if (q.qtype === "fill") return correct.join("|") === mine.join("|");
     return [...correct].sort().join("|") === [...mine].sort().join("|");
   }
 
+  /* 计分：单选/判断/填空 全对得分；多选 全对1.5、部分选对1、有错0 */
   function scoreFor(q, userAnswer) {
     const plan = q._plan || {};
     const correct = (Array.isArray(q.answer) ? q.answer : [q.answer]).map(norm);
