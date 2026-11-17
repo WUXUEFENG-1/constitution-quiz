@@ -1,6 +1,12 @@
 /* 管理后台 */
 (function () {
-  const S = { registrations: [], questions: [], attempts: [], settings: null, regDept: "" };
+  const S = {
+    registrations: [],
+    questions: [],
+    attempts: [],
+    settings: null,
+    regDept: ""
+  };
 
   init();
 
@@ -57,6 +63,7 @@
     loadOverview();
   }
 
+  /* ---------------- 概览 ---------------- */
   async function loadOverview() {
     const regs = S.registrations;
     const ats = S.attempts;
@@ -81,7 +88,8 @@
     });
 
     const st = S.settings || {};
-    const open = examIsOpen(st, Date.now());
+    const now = Date.now();
+    const open = examIsOpen(st, now);
     document.getElementById("ovState").innerHTML = open
       ? '<span class="badge green">开放中</span>' : '<span class="badge gray">未开放</span>';
     document.getElementById("ovSetting").innerHTML = `
@@ -130,6 +138,7 @@
       </div>`).join("");
   }
 
+  /* ---------------- 报名 ---------------- */
   async function loadRegistrations() {
     const { data, error } = await API.sb
       .from("registrations")
@@ -176,6 +185,7 @@
     API.downloadCSV(`报名统计_${dateStamp()}.csv`, rows);
   }
 
+  /* ---------------- 题库 ---------------- */
   async function loadQuestions() {
     const { data, error } = await API.sb
       .from("questions")
@@ -234,6 +244,7 @@
     API.toast("已删除", "success");
   }
 
+  /* 题目编辑弹窗 */
   function editQuestion(q) {
     const isNew = !q;
     const data = q || { qtype: "single", content: "", options: [], answer: [], analysis: "", score: 2, is_active: true };
@@ -312,6 +323,7 @@
       await loadQuestions(); renderQuestions(); loadOverview();
     });
 
+    // 回填
     document.getElementById("mType").value = data.qtype;
     document.getElementById("mContent").value = data.content || "";
     const opts = data.options || [];
@@ -342,8 +354,8 @@
   function parseAnswer(qtype, text) {
     const t = text.trim();
     if (qtype === "judge") {
-      if (t === "正确" || t === "对" || t === "√" || t === "A" || /^正确$/.test(t)) return ["A"];
-      if (t === "错误" || t === "错" || t === "×" || t === "B") return ["B"];
+      if (/^[A对√正]$|对|正确|true/i.test(t)) return ["A"];
+      if (/^[B错×误]$|错|错误|false/i.test(t)) return ["B"];
       throw new Error("判断题答案请填写“正确”或“错误”");
     }
     if (qtype === "fill") {
@@ -365,6 +377,7 @@
     return arr.join("");
   }
 
+  /* 批量导入 */
   function downloadTemplate() {
     const rows = [
       ["题型", "题干", "选项A", "选项B", "选项C", "选项D", "正确答案", "分值", "解析"],
@@ -383,7 +396,19 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const wb = XLSX.read(new Uint8Array(reader.result), { type: "array" });
+        const bytes = new Uint8Array(reader.result);
+        const isCsv = /\.csv$/i.test(file.name || "");
+        let wb;
+        if (isCsv) {
+          // CSV 先按 UTF-8 解码（BOM 自动忽略）；出现乱码时回退 GB18030，兼容 Windows 版 Excel 另存的文件
+          let text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+          if (/\uFFFD/.test(text)) {
+            text = new TextDecoder("gb18030", { fatal: false }).decode(bytes);
+          }
+          wb = XLSX.read(text, { type: "string" });
+        } else {
+          wb = XLSX.read(bytes, { type: "array" });
+        }
         const sheet = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false });
         importRows(rows);
@@ -399,6 +424,7 @@
     const list = rows.filter((r) => r && r.length && String(r[0] || "").trim() !== "");
     if (!list.length) return API.toast("文件内容为空", "error");
 
+    // 跳过表头
     if (/题型|type/i.test(String(list[0][0] || ""))) list.shift();
 
     const typeMap = {
@@ -459,6 +485,7 @@
     }, "确认导入");
   }
 
+  /* ---------------- 设置 ---------------- */
   async function loadSettings() {
     const { data, error } = await API.sb
       .from("exam_settings")
@@ -528,6 +555,7 @@
     }
   }
 
+  /* ---------------- 成绩 ---------------- */
   async function loadAttempts() {
     const { data, error } = await API.sb
       .from("attempts")
@@ -578,6 +606,7 @@
     API.downloadCSV(`答题成绩_${dateStamp()}.csv`, rows);
   }
 
+  /* ---------------- 弹窗 ---------------- */
   function openModal(title, bodyHtml, onConfirm, confirmText) {
     const mask = document.createElement("div");
     mask.className = "modal-mask";
