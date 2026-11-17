@@ -8,6 +8,13 @@
   .header-nav { flex-wrap: wrap; }
   .chart-row { grid-template-columns: 1fr; gap: 4px; }
   .chart-bar-row { grid-template-columns: 120px 1fr 50px; }
+
+  /* 后台固定导航栏在窄屏还原为横向排列，取消固定停靠 */
+  .admin-side {
+    position: static; width: auto; top: auto; bottom: auto; left: auto;
+    overflow: visible; border-radius: var(--radius);
+  }
+  .admin-pagehead, .admin-main { margin-left: 0; }
 }
 
 @media (max-width: 620px) {
@@ -62,7 +69,7 @@
   .q-text { font-size: 14.5px; }
   .opt { padding: 10px 12px; font-size: 13.5px; }
   .sheet-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
-  .sheet-cell { height: 30px; font-size: 12.5px; }
+  .sheet-cell { height: 30px; font-size: 12px; }
   .exam-nav, .exam-actions { gap: 8px; }
   .exam-nav .btn, .exam-actions .btn { flex: 1; }
 
