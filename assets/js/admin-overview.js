@@ -34,9 +34,9 @@
     regs.forEach((r) => { const k = normalizeDept(r.department); deptMap[k] = (deptMap[k] || 0) + 1; });
     renderBars("deptBars", deptMap);
 
-    // 班级分布
+    // 班级分布（缺“班”字的按数字结尾自动补全，如“计算机网络技术2602”→“计算机网络技术2602班”）
     const classMap = {};
-    regs.forEach((r) => { const k = r.class_name || "未填写"; classMap[k] = (classMap[k] || 0) + 1; });
+    regs.forEach((r) => { const k = normalizeClass(r.class_name); classMap[k] = (classMap[k] || 0) + 1; });
     renderBars("classBars", classMap);
 
     // 状态分布
@@ -72,6 +72,14 @@
     if (/汽车/.test(d)) return "汽车工程学院";
     if (/机械|机器人/.test(d)) return "机械工程学院";
     if (/现代服务|服务/.test(d)) return "现代服务学院";
+    return d;
+  }
+
+  function normalizeClass(name) {
+    const d = String(name || "").trim().replace(/\s+/g, "");
+    if (!d) return "未填写";
+    if (/班$/.test(d)) return d;
+    if (/\d{2,4}$/.test(d)) return d + "班";
     return d;
   }
 
