@@ -1,11 +1,14 @@
-/* 在线练习 */
+/* 在线练习：按题型固定组卷（单选50×1 / 多选20×1.5 / 判断10×1 / 填空5×2），多选部分选对得1分 */
 (function () {
-  const params = new URLSearchParams(location.search);
-  const count = Math.max(1, Math.min(50, parseInt(params.get("count") || "10", 10)));
-  const type = ["single", "multiple", "judge", "fill"].includes(params.get("type") || "") ? params.get("type") : "";
+  const PLAN = [
+    { qtype: "single",  n: 50, score: 1 },
+    { qtype: "multiple", n: 20, full: 1.5, partial: 1, score: 1.5 },
+    { qtype: "judge",   n: 10, score: 1 },
+    { qtype: "fill",    n: 5,  score: 2 }
+  ];
 
   let questions = [];
-  let answers = {};      // { qid: string | string[] }
+  let answers = {};
   let graded = false;
 
   init();
@@ -31,12 +34,15 @@
     const list = document.getElementById("qList");
     list.innerHTML = `<div class="empty-state">正在抽题…</div>`;
     try {
-      const { data, error } = await API.sb.rpc("get_practice_questions", {
-        p_count: count,
-        p_type: type
-      });
-      if (error) throw error;
-      questions = Array.isArray(data) ? data : [];
+      const batches = await Promise.all(PLAN.map(async (plan) => {
+        const { data, error } = await API.sb.rpc("get_practice_questions", {
+          p_count: plan.n,
+          p_type: plan.qtype
+        });
+        if (error) throw error;
+        return (data || []).map((q) => ({ ...q, _plan: plan }));
+      }));
+      questions = batches.flat();
     } catch (err) {
       list.innerHTML = `<div class="notice danger">抽题失败：${API.escapeHtml(err.message || err)}</div>`;
       return;
@@ -48,7 +54,7 @@
     }
 
     document.getElementById("practiceTip").textContent =
-      `· 本次 ${questions.length} 题${type ? "（" + API.typeLabel(type) + "）" : ""}`;
+      `· 本次 ${questions.length} 题（单选 / 多选 / 判断 / 填空 自动组卷）`;
     document.getElementById("submitBtn").disabled = false;
     render();
   }
@@ -159,6 +165,20 @@
     return [...correct].sort().join("|") === [...mine].sort().join("|");
   }
 
+  function scoreFor(q, userAnswer) {
+    const plan = q._plan || {};
+    const correct = (Array.isArray(q.answer) ? q.answer : [q.answer]).map(norm);
+    const mine = (Array.isArray(userAnswer) ? userAnswer : [userAnswer]).map(norm).filter(Boolean);
+    if (!mine.length) return 0;
+    if (q.qtype === "multiple") {
+      const hasWrong = mine.some((m) => !correct.includes(m));
+      if (hasWrong) return 0;
+      if (mine.length === correct.length) return plan.full || 1.5;
+      return plan.partial || 1;
+    }
+    return isCorrect(q, userAnswer) ? (plan.score || Number(q.score || 0)) : 0;
+  }
+
   function gradeAll() {
     if (graded) return;
     if (answeredCount() === 0) { API.toast("请至少作答一题", "error"); return; }
@@ -170,8 +190,9 @@
       const mine = answers[q.id];
       const ok = isCorrect(q, mine);
       if (ok) right++;
-      myScore += ok ? Number(q.score || 0) : 0;
-      totalScore += Number(q.score || 0);
+      const got = scoreFor(q, mine);
+      myScore += got;
+      totalScore += (q._plan && q._plan.score) || Number(q.score || 0);
 
       const res = document.getElementById("res-" + q.id);
       res.hidden = false;
@@ -190,6 +211,16 @@
     document.getElementById("submitBtn").disabled = true;
     API.toast(`练习完成：答对 ${right} / ${questions.length} 题，得分 ${myScore} / ${totalScore}`, "success", 4000);
 
+    savePracticeHistory({
+      title: "在线练习",
+      score: Math.round(myScore * 100) / 100,
+      total_score: Math.round(totalScore * 100) / 100,
+      correct_count: right,
+      question_count: questions.length,
+      duration_seconds: 0,
+      submitted_at: new Date().toISOString()
+    });
+
     const summary = document.createElement("div");
     summary.className = "card";
     summary.innerHTML = `<div class="card-title">本组练习结果</div>
@@ -200,5 +231,12 @@
       </div>`;
     document.getElementById("qList").prepend(summary);
     summary.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function savePracticeHistory(row) {
+    let hist = [];
+    try { hist = JSON.parse(localStorage.getItem("xfjs_practice_history") || "[]"); } catch (e) {}
+    hist.unshift(row);
+    localStorage.setItem("xfjs_practice_history", JSON.stringify(hist.slice(0, 50)));
   }
 })();
