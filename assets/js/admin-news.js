@@ -1,7 +1,9 @@
-/* 公告管理：发布 / 编辑 / 置顶 / 上下架 / 删除 */
+/* 公告管理：发布 / 编辑 / 置顶 / 上下架 / 删除 / 附件上传 */
 (function () {
   let list = [];
   const KIND = { notice: "通知", rule: "规则", result: "成绩公告" };
+  const MAX_SIZE = 5 * 1024 * 1024; // 单个附件 5MB
+  const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg";
 
   Admin.register("news", { load });
 
@@ -11,6 +13,37 @@
     list = data || [];
     document.getElementById("newsAddBtn").onclick = () => openEdit(null);
     render();
+  }
+
+  function parseAtt(raw) {
+    try {
+      const a = JSON.parse(raw || "[]");
+      return Array.isArray(a) ? a : [];
+    } catch (e) { return []; }
+  }
+
+  function fmtSize(b) {
+    b = Number(b) || 0;
+    if (b < 1024) return b + "B";
+    if (b < 1048576) return (b / 1024).toFixed(1) + "KB";
+    return (b / 1048576).toFixed(1) + "MB";
+  }
+
+  function attLinks(atts) {
+    if (!atts || !atts.length) return "";
+    const links = atts.map((a) =>
+      `<a class="link-btn" href="${a.data}" download="${API.escapeHtml(a.name)}" target="_blank" rel="noopener" style="margin-right:14px;display:inline-block">附件：${API.escapeHtml(a.name)}（${fmtSize(a.size)}）</a>`
+    ).join("");
+    return `<div class="news-files" style="margin-top:6px">${links}</div>`;
+  }
+
+  function readFile(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res({ name: file.name, type: file.type || "application/octet-stream", size: file.size, data: r.result });
+      r.onerror = () => rej(r.error);
+      r.readAsDataURL(file);
+    });
   }
 
   function render() {
@@ -24,6 +57,7 @@
         </div>
         <div class="meta">${API.fmtTime(n.created_at)}</div>
         <div class="body">${API.escapeHtml(n.content)}</div>
+        ${attLinks(parseAtt(n.attachments))}
         <div class="op" style="margin-top:8px">
           <button class="link-btn" data-act="edit" data-id="${n.id}">编辑</button>
           <button class="link-btn" data-act="toggle" data-id="${n.id}">${n.is_published ? "下架" : "发布"}</button>
@@ -45,7 +79,9 @@
   }
 
   function openEdit(n) {
-    const f = n || { title: "", content: "", kind: "notice", pinned: false, is_published: true };
+    const f = n || { title: "", content: "", kind: "notice", pinned: false, is_published: true, attachments: null };
+    let atts = parseAtt(f.attachments);
+
     const body = `
       <div class="field"><label>标题 <span class="req">*</span></label><input id="fTitle" value="${API.escapeHtml(f.title)}"></div>
       <div class="grid-2">
@@ -59,17 +95,25 @@
           <label><input type="checkbox" id="fPub" ${f.is_published ? "checked" : ""}> 发布</label>
         </div>
       </div>
-      <div class="field"><label>正文</label><textarea id="fContent" rows="4">${API.escapeHtml(f.content)}</textarea></div>`;
+      <div class="field"><label>正文</label><textarea id="fContent" rows="4">${API.escapeHtml(f.content)}</textarea></div>
+      <div class="field">
+        <label>附件（可选，PDF / Word / Excel / PPT / 图片，单个不超过 5MB）</label>
+        <input type="file" id="fFile" accept="${ACCEPT}" multiple>
+        <div id="fFiles" style="margin-top:8px"></div>
+      </div>`;
+
     Admin.openModal(n ? "编辑公告" : "发布公告", body, [
       Admin.btn("取消", "ghost", Admin.closeModal),
       Admin.btn("保存", "", async () => {
         const title = document.getElementById("fTitle").value.trim();
         if (!title) return API.toast("标题必填", "error");
+        if (atts.length > 3) return API.toast("每条公告最多上传 3 个附件", "error");
         const payload = {
           title, content: document.getElementById("fContent").value.trim(),
           kind: document.getElementById("fKind").value,
           pinned: document.getElementById("fPin").checked,
           is_published: document.getElementById("fPub").checked,
+          attachments: atts.length ? JSON.stringify(atts) : null,
           updated_at: new Date().toISOString()
         };
         if (n) {
@@ -82,5 +126,34 @@
         API.toast("公告已保存", "success"); Admin.closeModal(); load();
       })
     ]);
+
+    const fileBox = document.getElementById("fFiles");
+    function renderAttList() {
+      if (!atts.length) {
+        fileBox.innerHTML = '<div class="shot-name">暂无附件</div>';
+        return;
+      }
+      fileBox.innerHTML = atts.map((a, i) => `
+        <div class="shot-name" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <span>附件：${API.escapeHtml(a.name)}（${fmtSize(a.size)}）</span>
+          <button type="button" class="link-btn danger" data-rm="${i}">移除</button>
+        </div>`).join("");
+      fileBox.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => {
+        atts.splice(Number(b.dataset.rm), 1);
+        renderAttList();
+      });
+    }
+    renderAttList();
+
+    document.getElementById("fFile").onchange = async (e) => {
+      const files = [...e.target.files];
+      for (const file of files) {
+        if (file.size > MAX_SIZE) { API.toast(`文件 ${file.name} 超过 5MB，未上传`, "error"); continue; }
+        try { atts.push(await readFile(file)); }
+        catch (_) { API.toast("读取失败：" + file.name, "error"); }
+      }
+      e.target.value = "";
+      renderAttList();
+    };
   }
 })();
