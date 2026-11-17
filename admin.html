@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>管理后台 · 学宪法 讲宪法</title>
+<title>管理后台 · <span data-brand="EVENT_SHORT"></span></title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -15,10 +15,13 @@
       <div>
         <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
         <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+        <div class="brand-sub-unit">主办单位：<span data-brand="HOST_UNIT"></span></div>
+        <div class="brand-sub-unit">承办单位：<span data-brand="ORGANIZER_UNIT"></span></div>
       </div>
     </div>
     <nav class="header-nav">
       <span class="user-chip" id="userChip">管理员</span>
+      <a href="home.html">选手视图</a>
       <button type="button" id="logoutBtn">退出登录</button>
     </nav>
   </div>
@@ -26,51 +29,50 @@
 
 <main class="wrap">
   <h2 class="page-title">竞赛管理后台</h2>
-  <p class="page-sub">报名统计 · 题库维护 · 答题开放 · 成绩导出</p>
+  <p class="page-sub" id="roleSub">数据看板 · 用户 · 题库 · 竞赛 · 监考 · 申诉 · 成绩 · 证书 · 公告 · 日志 · 设置</p>
 
   <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="overview">数据概览</button>
-    <button class="tab" data-tab="registrations">报名统计</button>
-    <button class="tab" data-tab="questions">题库管理</button>
-    <button class="tab" data-tab="settings">答题设置</button>
-    <button class="tab" data-tab="scores">成绩导出</button>
+    <button class="tab active" data-tab="overview" data-perm="all">数据看板</button>
+    <button class="tab" data-tab="users" data-perm="admin">用户管理</button>
+    <button class="tab" data-tab="questions" data-perm="questioner">题库管理</button>
+    <button class="tab" data-tab="competitions" data-perm="admin">竞赛与试卷</button>
+    <button class="tab" data-tab="monitor" data-perm="proctor">监考监控</button>
+    <button class="tab" data-tab="cheat" data-perm="proctor">防作弊记录</button>
+    <button class="tab" data-tab="appeals" data-perm="admin">申诉管理</button>
+    <button class="tab" data-tab="scores" data-perm="statistician">成绩管理</button>
+    <button class="tab" data-tab="certs" data-perm="admin">证书管理</button>
+    <button class="tab" data-tab="news" data-perm="admin">公告管理</button>
+    <button class="tab" data-tab="logs" data-perm="admin">系统日志</button>
+    <button class="tab" data-tab="settings" data-perm="admin">系统设置</button>
   </div>
 
-  <!-- 概览 -->
+  <!-- 数据看板 -->
   <section id="panel-overview">
     <div class="grid-4" id="statCards"></div>
     <div class="grid-2" style="margin-top:18px">
-      <div class="card" style="margin:0">
-        <div class="card-title">各系部报名人数</div>
-        <div id="deptBars"><div class="empty-state" style="padding:20px">暂无数据</div></div>
-      </div>
-      <div class="card" style="margin:0">
-        <div class="card-title">答题状态分布</div>
-        <div id="stateBars"><div class="empty-state" style="padding:20px">暂无数据</div></div>
-      </div>
+      <div class="card" style="margin:0"><div class="card-title">各系部报名人数</div><div id="deptBars"><div class="empty-state" style="padding:20px">暂无数据</div></div></div>
+      <div class="card" style="margin:0"><div class="card-title">答题状态分布</div><div id="stateBars"><div class="empty-state" style="padding:20px">暂无数据</div></div></div></div>
     </div>
-    <div class="card">
-      <div class="card-title">当前开放状态 <span class="right" id="ovState"></span></div>
-      <div id="ovSetting"></div>
-    </div>
+    <div class="card" style="margin-top:18px"><div class="card-title">各题正确率</div><div id="accBars"><div class="empty-state" style="padding:20px">暂无数据</div></div></div>
   </section>
 
-  <!-- 报名统计 -->
-  <section id="panel-registrations" hidden>
+  <!-- 用户管理 -->
+  <section id="panel-users" hidden>
     <div class="card">
-      <div class="card-title">报名名单 <span class="right" id="regCount"></span></div>
+      <div class="card-title">选手与账号 <span class="right" id="userCount"></span></div>
       <div class="toolbar">
-        <input type="text" id="regSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
-        <select id="regDept"><option value="">全部系部</option></select>
-        <button class="btn ghost sm" id="regExport">导出报名表（CSV）</button>
-        <button class="btn soft sm" id="regRefresh">刷新</button>
+        <input type="text" id="userSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
+        <select id="userRole"><option value="">全部角色</option><option value="contestant">选手</option><option value="admin">系统管理员</option><option value="sub_admin">子管理员</option><option value="questioner">出题员</option><option value="proctor">监考员</option><option value="statistician">统计员</option></select>
+        <select id="userStatus"><option value="">全部状态</option><option value="active">正常</option><option value="banned">已封禁</option></select>
+        <button class="btn sm" id="userAddBtn">新增账号</button>
+        <button class="btn soft sm" id="userImportBtn">批量导入</button>
+        <input type="file" id="userFile" accept=".csv,.xlsx" hidden>
+        <button class="btn soft sm" id="userRefresh">刷新</button>
       </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr>
-            <th>#</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>手机号</th><th>报名时间</th>
-          </tr></thead>
-          <tbody id="regBody"></tbody>
+          <thead><tr><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead>
+          <tbody id="userBody"></tbody>
         </table>
       </div>
     </div>
@@ -82,123 +84,196 @@
       <div class="card-title">题库 <span class="right" id="qCount"></span></div>
       <div class="toolbar">
         <input type="text" id="qSearch" class="grow" placeholder="按题干关键词搜索">
-        <select id="qType">
-          <option value="">全部题型</option>
-          <option value="single">单选题</option>
-          <option value="multiple">多选题</option>
-          <option value="judge">判断题</option>
-          <option value="fill">填空题</option>
-        </select>
+        <select id="qType"><option value="">全部题型</option><option value="single">单选题</option><option value="multiple">多选题</option><option value="judge">判断题</option><option value="fill">填空题</option></select>
+        <select id="qCategory"><option value="">全部分类</option></select>
         <button class="btn sm" id="qAddBtn">新增题目</button>
-        <button class="btn soft sm" id="qImportBtn">批量导入（Excel / CSV）</button>
-        <button class="btn ghost sm" id="qTemplateBtn">下载导入模板</button>
-        <input type="file" id="qFile" accept=".xlsx,.xls,.csv" hidden>
+        <button class="btn soft sm" id="qImportBtn">批量导入（Excel / CSV / Word / PDF）</button>
+        <button class="btn ghost sm" id="qTemplateBtn">下载模板</button>
+        <input type="file" id="qFile" accept=".xlsx,.xls,.csv,.docx,.pdf" hidden>
       </div>
       <div class="notice" style="margin-bottom:14px">
-        导入模板列顺序：<b>题型 / 题干 / 选项A / 选项B / 选项C / 选项D / 正确答案 / 分值 / 解析</b>。
-        题型填“单选/多选/判断/填空”；多选答案写“ABD”或“A,B,D”；判断题答案写“正确/错误”；填空多个空用 <b>|</b> 分隔。
+        支持 Excel / CSV 直接解析；Word（.docx）、PDF 上传后调用 DeepSeek 自动识别题型、题干、选项、答案与解析，确认后入库。
       </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr>
-            <th>#</th><th>题型</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th>
-          </tr></thead>
+          <thead><tr><th>#</th><th>题型</th><th>分类</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th></tr></thead>
           <tbody id="qBody"></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- 答题设置 -->
-  <section id="panel-settings" hidden>
-    <div class="card">
-      <div class="card-title">答题入口设置</div>
-      <form id="settingForm">
-        <div class="grid-2">
-          <div class="field">
-            <label>答题入口状态</label>
-            <select id="sOpen">
-              <option value="0">关闭（选手无法进入答题）</option>
-              <option value="1">开放（允许选手进入答题）</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>抽题数量（每次答题从题库随机抽取）</label>
-            <input type="number" id="sCount" min="1" max="200" value="40">
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>开放时间（开始）</label>
-            <input type="datetime-local" id="sStart">
-          </div>
-          <div class="field">
-            <label>截止时间（结束）</label>
-            <input type="datetime-local" id="sEnd">
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>答题时长（分钟）</label>
-            <input type="number" id="sDuration" min="1" max="300" value="30">
-          </div>
-          <div class="field">
-            <label>题目顺序</label>
-            <select id="sShuffle">
-              <option value="1">随机打乱</option>
-              <option value="0">按题库顺序</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>选手端公告（可选，显示在答题入口面板）</label>
-          <textarea id="sNote" placeholder="例如：请在规定时间内独立完成，答题期间不要刷新页面。"></textarea>
-        </div>
-        <div class="btn-row">
-          <button type="submit" class="btn" id="saveSetting">保存设置</button>
-          <button type="button" class="btn soft" id="openNow">立即开放</button>
-          <button type="button" class="btn ghost" id="closeNow">立即关闭</button>
-        </div>
-      </form>
+  <!-- 竞赛与试卷 -->
+  <section id="panel-competitions" hidden>
+    <div class="toolbar">
+      <button class="btn sm" id="compAddBtn">创建竞赛</button>
+      <button class="btn soft sm" id="compRefresh">刷新</button>
     </div>
-    <div class="notice warn" style="margin-top:16px">
-      说明：开放状态与起止时间同时生效——只有“开放”且在起止时间范围内，选手才能进入答题；关闭后已进入的选手仍可在倒计时内提交。
+    <div id="compList" style="margin-top:14px"></div>
+  </section>
+
+  <!-- 监考监控 -->
+  <section id="panel-monitor" hidden>
+    <div class="card">
+      <div class="card-title">实时答题状态 <span class="right" id="monCount"></span></div>
+      <div class="toolbar"><button class="btn soft sm" id="monRefresh">刷新</button><span class="section-note">每 20 秒自动刷新</span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>姓名</th><th>学号</th><th>系部 / 班级</th><th>状态</th><th>已答 / 题量</th><th>用时</th><th>开始时间</th></tr></thead>
+          <tbody id="monBody"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
-  <!-- 成绩 -->
+  <!-- 防作弊记录 -->
+  <section id="panel-cheat" hidden>
+    <div class="card">
+      <div class="card-title">异常行为记录 <span class="right" id="cheatCount"></span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>选手</th><th>类型</th><th>详情</th><th>次数</th><th>时间</th><th>操作</th></tr></thead>
+          <tbody id="cheatBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 申诉管理 -->
+  <section id="panel-appeals" hidden>
+    <div class="card">
+      <div class="card-title">申诉审核 <span class="right" id="appealCount"></span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>选手</th><th>类型</th><th>内容</th><th>状态</th><th>回复</th><th>时间</th><th>操作</th></tr></thead>
+          <tbody id="appealBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 成绩管理 -->
   <section id="panel-scores" hidden>
     <div class="card">
       <div class="card-title">答题成绩 <span class="right" id="scoreCount"></span></div>
       <div class="toolbar">
         <input type="text" id="scoreSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
-        <select id="scoreStatus">
-          <option value="submitted">已交卷</option>
-          <option value="in_progress">答题中（未交卷）</option>
-          <option value="">全部</option>
-        </select>
+        <select id="scoreStatus"><option value="submitted">已交卷</option><option value="in_progress">答题中（未交卷）</option><option value="">全部</option></select>
         <button class="btn ghost sm" id="scoreExport">导出成绩表（CSV）</button>
         <button class="btn soft sm" id="scoreRefresh">刷新</button>
       </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr>
-            <th>排名</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>得分</th><th>总分</th>
-            <th>正确题数</th><th>用时</th><th>交卷时间</th>
-          </tr></thead>
+          <thead><tr><th>排名</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>得分</th><th>总分</th><th>正确题数</th><th>正确率</th><th>用时</th><th>交卷时间</th></tr></thead>
           <tbody id="scoreBody"></tbody>
         </table>
       </div>
     </div>
   </section>
+
+  <!-- 证书管理 -->
+  <section id="panel-certs" hidden>
+    <div class="card">
+      <div class="card-title">证书模板配置</div>
+      <div class="grid-2">
+        <div class="field"><label>证书标题</label><input type="text" id="certTitle"></div>
+        <div class="field"><label>落款单位</label><input type="text" id="certOrg"></div>
+      </div>
+      <div class="field"><label>页脚文字</label><input type="text" id="certFoot"></div>
+      <button class="btn sm" id="certSaveTpl">保存模板</button>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="card-title">已发证书 <span class="right" id="certCount"></span></div>
+      <div class="toolbar">
+        <button class="btn sm" id="certIssueBtn">为已交卷选手批量签发</button>
+        <button class="btn soft sm" id="certRefresh">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>姓名</th><th>学号</th><th>编号</th><th>成绩</th><th>排名</th><th>签发时间</th></tr></thead>
+          <tbody id="certBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 公告管理 -->
+  <section id="panel-news" hidden>
+    <div class="toolbar">
+      <button class="btn sm" id="newsAddBtn">发布公告</button>
+    </div>
+    <div id="newsList" style="margin-top:14px"></div>
+  </section>
+
+  <!-- 系统日志 -->
+  <section id="panel-logs" hidden>
+    <div class="card">
+      <div class="card-title">登录与操作日志</div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>时间</th><th>账号 / 角色</th><th>操作</th><th>详情</th></tr></thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 系统设置 -->
+  <section id="panel-settings" hidden>
+    <div class="card">
+      <div class="card-title">页面与安全配置</div>
+      <div class="grid-2">
+        <div class="field"><label>页面标题</label><input type="text" id="setSiteTitle"></div>
+        <div class="field"><label>副标题</label><input type="text" id="setSiteSub"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>登录验证码</label><select id="setCaptcha"><option value="true">开启</option><option value="false">关闭</option></select></div>
+        <div class="field"><label>切屏提醒次数阈值</label><input type="number" id="setMaxSwitch" min="1" max="20"></div>
+      </div>
+      <button class="btn sm" id="setSaveSite">保存页面与安全</button>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="card-title">DeepSeek 题库解析</div>
+      <div class="grid-2">
+        <div class="field"><label>API 地址</label><input type="text" id="setDsBase"></div>
+        <div class="field"><label>模型</label><input type="text" id="setDsModel"></div>
+      </div>
+      <div class="field"><label>API Key</label><input type="password" id="setDsKey" placeholder="sk-...，仅后台解析题库时使用"></div>
+      <button class="btn sm" id="setSaveDs">保存解析配置</button>
+    </div>
+  </section>
 </main>
 
-<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛管理系统</footer>
+<footer class="site-footer">
+  <span class="foot-main" data-brand="FOOTER_MAIN"></span>
+  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
+</footer>
+
+<!-- 通用模态框 -->
+<div class="modal-mask" id="modalMask" hidden>
+  <div class="modal" id="modalBox">
+    <div class="modal-head"><h3 id="modalTitle">标题</h3><button class="close" id="modalClose">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/admin.js"></script>
+<script src="assets/js/admin-overview.js"></script>
+<script src="assets/js/admin-users.js"></script>
+<script src="assets/js/admin-questions.js"></script>
+<script src="assets/js/admin-competitions.js"></script>
+<script src="assets/js/admin-monitor.js"></script>
+<script src="assets/js/admin-appeals.js"></script>
+<script src="assets/js/admin-scores.js"></script>
+<script src="assets/js/admin-certs.js"></script>
+<script src="assets/js/admin-news.js"></script>
+<script src="assets/js/admin-settings.js"></script>
 </body>
 </html>
