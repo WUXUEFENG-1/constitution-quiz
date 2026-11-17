@@ -3,47 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>排行榜</title>
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="assets/css/style.css">
+<meta http-equiv="refresh" content="0; url=home.html">
+<script>location.replace("home.html");</script>
 </head>
-<body>
-
-<header class="site-header">
-  <div class="wrap">
-    <div class="brand">
-      <span class="brand-mark">宪</span>
-      <div>
-        <h1 data-brand="ORG_NAME" style="font-size:21px">云南工业信息职业学院</h1>
-        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
-      </div>
-    </div>
-    <nav class="header-nav">
-      <span class="user-chip" id="userChip">选手</span>
-      <button type="button" id="logoutBtn">退出登录</button>
-    </nav>
-  </div>
-</header>
-
-<aside class="side-rail">
-  <div class="side-title">功能菜单</div>
-  <a class="side-item" href="home.html"><span class="ico">▦</span>选手中心</a>
-  <a class="side-item" href="practice.html"><span class="ico">✎</span>在线练习</a>
-  <a class="side-item active" href="leaderboard.html"><span class="ico">☰</span>排行榜</a>
-  <a class="side-item" href="appeals.html"><span class="ico">✉</span>异议申诉</a>
-  <a class="side-item" href="profile.html"><span class="ico">☻</span>个人中心</a>
-</aside>
-
-<main class="wrap player-main">
-  <h2 class="page-title">实时排行榜</h2>
-  <p class="page-sub">按总分从高到低排名，同分用时短者优先；成绩以正式交卷为准。</p>
-  <div class="card">
-    <div id="rankList"><div class="empty-state">正在加载…</div></div>
-  </div>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/core.js"></script>
-<script src="assets/js/leaderboard.js"></script>
-</body>
+<body></body>
 </html>
