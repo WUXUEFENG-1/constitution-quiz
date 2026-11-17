@@ -32,6 +32,7 @@
     document.getElementById("logoutBtn").onclick = () => API.signOut();
     fitPageHead();
     window.addEventListener("resize", fitPageHead);
+    window.addEventListener("load", fitPageHead);
 
     document.querySelectorAll(".side-item").forEach((t) => {
       if (!Admin.can(t.dataset.perm)) t.style.display = "none";
@@ -51,11 +52,15 @@
     switchTab("overview");
   }
 
-  /* 标题栏吸顶偏移 = 头部实际高度，避免被头部压住半截 */
+  /* 标题栏吸顶偏移 = 头部实际高度；侧边栏停在标题栏下方，避免重叠 */
   function fitPageHead() {
     const hdr = document.querySelector(".site-header");
     const ph = document.querySelector(".admin-pagehead");
+    const side = document.querySelector(".admin-side");
     if (hdr && ph) ph.style.top = hdr.offsetHeight + "px";
+    if (hdr && ph && side) {
+      side.style.top = (hdr.offsetHeight + ph.offsetHeight + 12) + "px";
+    }
   }
 
   function switchTab(tab) {

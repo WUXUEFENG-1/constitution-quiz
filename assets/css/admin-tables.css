@@ -23,8 +23,8 @@
 }
 .admin-pagehead .page-sub { margin-bottom: 0; }
 
-/* 侧边栏不再单独吸顶，避免滑到标题栏下方被遮挡半截 */
-.admin-side { position: static; top: auto; }
+/* 侧边栏吸顶；top 由 JS 按头部+标题栏实际高度计算，避免与标题栏重叠 */
+.admin-side { position: sticky; top: 168px; z-index: 10; }
 
 /* 证书实时预览 */
 #certPreview .cert-line { max-width: 420px; margin: 0 auto; }
