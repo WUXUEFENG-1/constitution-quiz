@@ -23,6 +23,9 @@
 .side-rail a.side-item { text-decoration: none; width: 100%; }
 .player-main { margin: 0 16px 0 232px; width: auto; max-width: none; min-width: 0; }
 
+/* 顶部头部通栏：品牌靠左、账号区靠右，撑满到页面两侧，不再居中限宽（登录页保持原居中） */
+body:not(.auth-page) .site-header .wrap { width: 100%; max-width: none; margin: 0; padding: 0 16px; }
+
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .header-nav { flex-wrap: wrap; }
