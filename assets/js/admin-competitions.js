@@ -120,8 +120,8 @@
     const payload = {
       title,
       subtitle: document.getElementById("fSub").value.trim(),
-      start_at: document.getElementById("fStart").value || null,
-      end_at: document.getElementById("fEnd").value || null,
+      start_at: API.localToISO(document.getElementById("fStart").value),
+      end_at: API.localToISO(document.getElementById("fEnd").value),
       duration_minutes: Number(document.getElementById("fDur").value) || 30,
       question_count: Number(document.getElementById("fCount").value) || 40,
       shuffle: document.getElementById("fShuffle").checked,

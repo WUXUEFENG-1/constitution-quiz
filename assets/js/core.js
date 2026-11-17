@@ -299,6 +299,13 @@
       return `${d.getFullYear()}-${API.pad(d.getMonth() + 1)}-${API.pad(d.getDate())}T${API.pad(d.getHours())}:${API.pad(d.getMinutes())}`;
     },
 
+    /* datetime-local 本地时间字符串 → UTC ISO 时间戳，避免被数据库按 UTC 误存导致 +8 小时 */
+    localToISO(str) {
+      if (!str) return null;
+      const d = new Date(str);
+      return isNaN(d) ? null : d.toISOString();
+    },
+
     fmtSeconds(sec) {
       sec = Math.max(0, Math.floor(sec || 0));
       const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
