@@ -130,7 +130,6 @@
       { icon: "✍️", title: "在线练习", desc: "随机抽题，即时查看答案与解析", href: "practice.html" },
       { icon: "⏱️", title: "答题入口", desc: "限时答题，提交后自动判分出分", href: "exam.html" },
       { icon: "🏆", title: "成绩与证书", desc: "历史成绩、错题回看、证书查看", href: "profile.html" },
-      { icon: "📊", title: "排行榜", desc: "实时排名与正确率一览", href: "leaderboard.html" },
       { icon: "📮", title: "提交申诉", desc: "题目或分数异议在线提交", href: "appeals.html" },
       { icon: "📝", title: "线上草稿板", desc: "随手记录，本地保存不丢失", href: "javascript:;", board: true }
     ];
