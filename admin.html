@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/admin-tables.css">
 </head>
-<body class="admin-loading">
+<body class="admin-page admin-loading">
 
 <header class="site-header">
   <div class="wrap">
@@ -202,6 +202,16 @@
         <img class="preview" id="certImgPreview" style="max-width:220px;max-height:140px;margin-top:8px;border:1px solid var(--line);border-radius:10px" hidden>
       </div>
       <button class="btn sm" id="certSaveTpl">保存模板</button>
+      <div class="field" style="margin-top:18px">
+        <label>实时预览（示例姓名：张三）</label>
+        <div class="cert-box" id="certPreview" style="max-width:560px;margin:0;background-size:cover;background-position:center;">
+          <div class="cert-org" id="pvOrg"></div>
+          <div class="cert-title" id="pvTitle">参赛证书</div>
+          <div class="cert-name">张 三</div>
+          <div class="cert-line" id="pvLine">在第二届“学宪法 讲宪法”校园知识竞赛中表现优异，成绩 90 分，位列第 3 名。</div>
+          <div class="cert-foot"><span id="pvFoot"></span><span id="pvDate"></span></div>
+        </div>
+      </div>
     </div>
     <div class="card" style="margin-top:18px">
       <div class="card-title">已发证书 <span class="right" id="certCount"></span></div>
