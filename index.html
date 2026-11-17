@@ -15,10 +15,13 @@
       <div>
         <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
         <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+        <div class="brand-sub-unit">主办单位：<span data-brand="HOST_UNIT"></span></div>
+        <div class="brand-sub-unit">承办单位：<span data-brand="ORGANIZER_UNIT"></span></div>
       </div>
     </div>
     <div class="header-nav">
       <a href="signup.html">选手注册</a>
+      <a href="admin.html">管理员入口</a>
     </div>
   </div>
 </header>
@@ -46,7 +49,14 @@
       <div class="field">
         <label for="password">登录密码 <span class="req">*</span></label>
         <input type="password" id="password" name="password" placeholder="请输入密码" required>
-        <div class="hint">忘记密码请联系竞赛管理员在后台重置</div>
+        <div class="hint">登录后可在个人中心自行修改密码；忘记密码请联系竞赛管理员重置</div>
+      </div>
+      <div class="field" id="captchaField">
+        <label for="captcha">图形验证码 <span class="req">*</span></label>
+        <div class="captcha-row">
+          <input type="text" id="captcha" maxlength="4" placeholder="输入右图字符" autocomplete="off">
+          <canvas class="captcha-canvas" id="captchaCanvas" width="118" height="42" title="点击刷新"></canvas>
+        </div>
       </div>
       <div class="field">
         <div class="inline-check"><input type="checkbox" id="remember" checked><label for="remember" style="margin:0">记住我，下次免登录</label></div>
@@ -58,7 +68,8 @@
 </div>
 
 <footer class="site-footer">
-  <span data-brand="ORG_NAME">云南工业信息职业学院</span> · <span data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</span>
+  <span class="foot-main" data-brand="FOOTER_MAIN"></span>
+  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>在线答题 · 学宪法 讲宪法</title>
+<title>在线答题 · <span data-brand="EVENT_SHORT"></span></title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
 <div class="exam-topbar">
   <div class="wrap">
     <div>
-      <div style="font-weight:700;color:var(--blue-900);font-size:15px" id="examTitle">第二届“学宪法 讲宪法”校园知识竞赛</div>
+      <div style="font-weight:700;color:var(--blue-900);font-size:15px" id="examTitle" data-brand="EVENT_NAME"></div>
       <div style="font-size:12.5px;color:var(--ink-3)" id="examMeta">在线答题</div>
     </div>
     <div class="timer" id="timer">--:--</div>
@@ -26,10 +26,14 @@
   <div id="examArea" hidden>
     <div class="exam-layout">
       <div>
+        <div class="notice warn" style="margin-bottom:14px">
+          答题期间请勿切换窗口、复制题目或离开页面；系统将记录切屏行为，多次异常将按违规处理。
+        </div>
         <div class="q-list" id="qList"></div>
         <div class="exam-actions">
           <button class="btn" id="submitBtn">提交答卷</button>
           <span class="progress-text" id="progressText">已作答 0 / 0</span>
+          <button class="btn soft sm" id="draftBtn">草稿板</button>
         </div>
       </div>
       <aside>
@@ -47,7 +51,21 @@
   </div>
 </main>
 
-<footer class="site-footer"><span data-brand="ORG_NAME"></span> · 竞赛组委会</footer>
+<footer class="site-footer">
+  <span class="foot-main" data-brand="FOOTER_MAIN"></span>
+  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
+</footer>
+
+<div class="modal-mask" id="cheatModal" hidden>
+  <div class="modal cheat-modal">
+    <div class="modal-head"><h3>防作弊提醒</h3></div>
+    <div class="modal-body">
+      <p class="cheat-warn" id="cheatText">检测到您离开答题页面，本次行为已被记录。</p>
+      <p style="font-size:13.5px;color:var(--ink-2)">请立即返回答题；累计多次异常切换将被标记为违规，成绩可能作废。</p>
+    </div>
+    <div class="modal-foot"><button class="btn" id="cheatOk">我知道了，继续答题</button></div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
