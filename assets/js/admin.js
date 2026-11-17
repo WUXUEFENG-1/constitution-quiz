@@ -1,4 +1,4 @@
-/* 管理后台外壳：登录守卫、权限、标签页、通用模态框 */
+/* 管理后台外壳：登录守卫、权限、侧边栏菜单、通用模态框 */
 (function () {
   const PERM = {
     all: () => true,
@@ -7,6 +7,10 @@
     proctor: (r) => ["admin", "sub_admin", "proctor"].includes(r),
     statistician: (r) => ["admin", "sub_admin", "statistician"].includes(r)
   };
+
+  /* 侧边栏别名 → 实际面板/钩子 */
+  const ALIAS = { papers: "competitions", roles: "users" };
+  const PANELS = ["overview", "users", "questions", "competitions", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"];
 
   const Admin = {
     profile: null,
@@ -26,12 +30,12 @@
       `${ctx.profile.full_name || "管理员"} · ${API.roleLabel(ctx.profile.role)}`;
     document.getElementById("logoutBtn").onclick = () => API.signOut();
 
-    document.querySelectorAll(".tab").forEach((t) => {
+    document.querySelectorAll(".side-item").forEach((t) => {
       if (!Admin.can(t.dataset.perm)) t.style.display = "none";
     });
 
-    document.getElementById("tabs").addEventListener("click", (e) => {
-      const btn = e.target.closest(".tab");
+    document.getElementById("sideNav").addEventListener("click", (e) => {
+      const btn = e.target.closest(".side-item");
       if (!btn) return;
       switchTab(btn.dataset.tab);
     });
@@ -44,10 +48,11 @@
   }
 
   function switchTab(tab) {
-    document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x.dataset.tab === tab));
-    ["overview", "users", "questions", "competitions", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"]
-      .forEach((k) => { document.getElementById("panel-" + k).hidden = k !== tab; });
-    const hook = Admin.hooks[tab];
+    const real = ALIAS[tab] || tab;
+    document.querySelectorAll(".side-item").forEach((x) =>
+      x.classList.toggle("active", x.dataset.tab === tab));
+    PANELS.forEach((k) => { document.getElementById("panel-" + k).hidden = k !== real; });
+    const hook = Admin.hooks[real];
     if (hook && typeof hook.load === "function") {
       Promise.resolve(hook.load()).catch((err) => API.toast("加载失败：" + (err.message || err), "error"));
     }
