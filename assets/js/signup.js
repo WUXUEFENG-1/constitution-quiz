@@ -49,13 +49,13 @@
       }
 
       API.toast("注册成功，正在进入选手中心", "success");
-      setTimeout(() => location.replace("dashboard.html"), 600);
+      setTimeout(() => location.replace("home.html"), 600);
     } catch (err) {
       const msg = String(err.message || err);
       const friendly =
         /already registered|already been registered|User already registered/i.test(msg)
           ? "该学号已注册，请直接登录；如忘记密码请联系管理员"
-          : /invalid format/i.test(msg) ? "账号格式不正确，请检查学号"
+          : /Phone|invalid format/i.test(msg) ? "账号格式不正确，请检查学号"
           : /Password should be|at least/i.test(msg) ? "密码不符合要求（至少 6 位）"
           : msg;
       API.toast(friendly, "error", 3600);
