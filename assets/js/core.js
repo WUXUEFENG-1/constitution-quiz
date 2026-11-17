@@ -270,6 +270,19 @@
       }[c]));
     },
 
+    deptOptions(selected) {
+      const list = Array.isArray(cfg.DEPARTMENTS) && cfg.DEPARTMENTS.length
+        ? cfg.DEPARTMENTS : [];
+      const sel = String(selected || "").trim();
+      const opts = list.map((d) =>
+        `<option value="${API.escapeHtml(d)}"${d === sel ? " selected" : ""}>${API.escapeHtml(d)}</option>`
+      );
+      if (sel && !list.includes(sel)) {
+        opts.unshift(`<option value="${API.escapeHtml(sel)}" selected>${API.escapeHtml(sel)}</option>`);
+      }
+      return `<option value="">请选择学院</option>` + opts.join("");
+    },
+
     pad(n) { return String(n).padStart(2, "0"); },
 
     fmtTime(iso) {
