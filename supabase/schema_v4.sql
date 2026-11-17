@@ -184,3 +184,11 @@ $$;
 
 grant execute on function public.start_exam_v2() to authenticated;
 grant execute on function public.submit_exam_v2(jsonb) to authenticated;
+
+-- ----------------------------------------------------------------------------
+-- 3. 题库读写策略：员工（管理员/出题员等）可读写，选手仅经 RPC 取题
+--    修复线上题库列表对员工不可见（策略缺失或被旧策略拦截）的问题。
+-- ----------------------------------------------------------------------------
+drop policy if exists questions_admin on public.questions;
+create policy questions_admin on public.questions
+  for all using (public.is_staff()) with check (public.is_staff());
