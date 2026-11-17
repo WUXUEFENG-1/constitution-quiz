@@ -106,7 +106,7 @@
   }
 
   async function delUser(u) {
-    if (!confirm(`确认删除账号 ${u.full_name}（${u.student_no}）？该操作不可恢复。`)) return;
+    if (!await API.confirm(`确认删除账号 ${u.full_name}（${u.student_no}）？该操作不可恢复。`)) return;
     const { error } = await API.sb.rpc("admin_delete_user", { p_id: u.id });
     if (error) return API.toast("失败：" + error.message, "error");
     API.toast("账号已删除", "success"); load();
@@ -159,7 +159,7 @@
     try {
       const rows = await API.parseTableFile(file);
       if (!rows.length) return API.toast("未解析到有效行", "error");
-      const ok = confirm(`解析到 ${rows.length} 条记录，是否批量创建账号？初始密码统一为 xfjs2026。`);
+      const ok = await API.confirm(`解析到 ${rows.length} 条记录，是否批量创建账号？初始密码统一为 xfjs2026。`);
       if (!ok) return;
       let success = 0, fail = 0;
       for (const r of rows) {
