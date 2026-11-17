@@ -70,12 +70,12 @@
 
   function find(id) { return list.find((x) => x.id === id); }
 
-  function onAction(act, id) {
+  async function onAction(act, id) {
     const n = find(id); if (!n) return;
     if (act === "edit") return openEdit(n);
     if (act === "toggle") return API.sb.from("announcements").update({ is_published: !n.is_published }).eq("id", n.id).then(load);
     if (act === "pin") return API.sb.from("announcements").update({ pinned: !n.pinned }).eq("id", n.id).then(load);
-    if (act === "del") { if (confirm("确认删除该公告？")) API.sb.from("announcements").delete().eq("id", n.id).then(load); }
+    if (act === "del") { if (await API.confirm("确认删除该公告？")) API.sb.from("announcements").delete().eq("id", n.id).then(load); }
   }
 
   function openEdit(n) {
