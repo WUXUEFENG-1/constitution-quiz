@@ -101,7 +101,7 @@
         支持 Excel / CSV 直接解析；Word（.docx）、PDF 上传后调用 DeepSeek 自动识别题型、题干、选项、答案与解析，确认后入库。勾选题目后可多选删除。
       </div>
       <div class="table-wrap">
-        <table class="data">
+        <table class="data" id="questionsTable">
           <thead><tr><th><input type="checkbox" id="qCheckAll" class="q-check"></th><th>#</th><th>题型</th><th>分类</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th></tr></thead>
           <tbody id="qBody"></tbody>
         </table>
@@ -116,6 +116,15 @@
       <button class="btn soft sm" id="compRefresh">刷新</button>
     </div>
     <div id="compList" style="margin-top:14px"></div>
+  </section>
+
+  <!-- 试卷管理 -->
+  <section id="panel-papers" hidden>
+    <div class="toolbar">
+      <span class="section-note" style="margin:0">按赛事展示试卷模板与题库题型配比，组卷参数在「竞赛管理」中配置。</span>
+      <button class="btn soft sm" id="paperRefresh">刷新</button>
+    </div>
+    <div id="paperList" style="margin-top:14px"></div>
   </section>
 
   <!-- 监考监控 -->
@@ -281,6 +290,7 @@
 <script src="assets/js/admin-users.js"></script>
 <script src="assets/js/admin-questions.js"></script>
 <script src="assets/js/admin-competitions.js"></script>
+<script src="assets/js/admin-papers.js"></script>
 <script src="assets/js/admin-monitor.js"></script>
 <script src="assets/js/admin-appeals.js"></script>
 <script src="assets/js/admin-scores.js"></script>

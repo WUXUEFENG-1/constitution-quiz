@@ -9,8 +9,8 @@
   };
 
   /* 侧边栏别名 → 实际面板/钩子 */
-  const ALIAS = { papers: "competitions", roles: "users" };
-  const PANELS = ["overview", "users", "questions", "competitions", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"];
+  const ALIAS = { roles: "users" };
+  const PANELS = ["overview", "users", "questions", "competitions", "papers", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"];
 
   const Admin = {
     profile: null,
