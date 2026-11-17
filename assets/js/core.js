@@ -293,6 +293,35 @@
       });
     },
 
+    /* 自定义输入弹窗：替代浏览器原生 prompt（原生标题固定为域名，无法自定义）。
+       返回 Promise<string|null>，确定返回输入串（可为空串）、取消/点遮罩为 null。 */
+    prompt(message, title, placeholder, defaultValue) {
+      return new Promise((resolve) => {
+        const mask = document.createElement("div");
+        mask.className = "modal-mask";
+        mask.innerHTML = `
+          <div class="modal" role="dialog" aria-modal="true" style="width:min(420px,100%)">
+            <div class="modal-head"><h3>${API.escapeHtml(title || "云南工业信息职业学院学生青年成长社提示")}</h3></div>
+            <div class="modal-body">
+              <p style="margin:6px 0;line-height:1.7;color:var(--ink-2)">${API.escapeHtml(message)}</p>
+              <input id="__promptInput" style="width:100%;margin-top:8px" placeholder="${API.escapeHtml(placeholder || "")}" value="${API.escapeHtml(defaultValue || "")}">
+            </div>
+            <div class="modal-foot">
+              <button type="button" class="btn ghost" data-ccancel>取消</button>
+              <button type="button" class="btn" data-cok>确定</button>
+            </div>
+          </div>`;
+        const done = (v) => { mask.remove(); resolve(v); };
+        const input = mask.querySelector("#__promptInput");
+        mask.querySelector("[data-cok]").onclick = () => done(input.value.trim());
+        mask.querySelector("[data-ccancel]").onclick = () => done(null);
+        input.onkeydown = (e) => { if (e.key === "Enter") done(input.value.trim()); };
+        mask.onclick = (e) => { if (e.target === mask) done(null); };
+        document.body.appendChild(mask);
+        input.focus();
+      });
+    },
+
     /* 转义后保留换行：规则等多行文本发布后按原分行展示 */
     renderMultiline(text) {
       return API.escapeHtml(text).replace(/\r\n|\r|\n/g, "<br>");
