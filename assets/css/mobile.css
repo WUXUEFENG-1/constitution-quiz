@@ -21,7 +21,7 @@
 }
 .side-rail .side-title { color: rgba(255,255,255,.6); font-size: 12px; letter-spacing: 1px; padding: 6px 12px 10px; }
 .side-rail a.side-item { text-decoration: none; width: 100%; }
-.player-main { margin-left: 232px; width: min(1180px, calc(100% - 264px)); min-width: 0; }
+.player-main { margin: 0 16px 0 232px; width: auto; max-width: none; min-width: 0; }
 
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -34,7 +34,7 @@
     position: static; width: auto; top: auto; bottom: auto; left: auto;
     overflow: visible; border-radius: var(--radius);
   }
-  .admin-pagehead, .admin-main, .player-main { margin-left: 0; width: auto; }
+  .admin-pagehead, .admin-main, .player-main { margin: 0; width: auto; }
 }
 
 @media (max-width: 620px) {

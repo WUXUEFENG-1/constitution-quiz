@@ -10,8 +10,8 @@
 /* 选手表：姓名列至少容纳 4 个汉字，不竖排 */
 #usersTable th:nth-child(1), #usersTable td:nth-child(1) { white-space: nowrap; min-width: 100px; }
 
-/* 后台整体左移并放宽主内容区 */
-.admin-page > main.wrap { width: min(1280px, calc(100% - 32px)); }
+/* 后台整体靠左铺满：取消居中限宽，主内容从固定侧边栏右侧一直撑到页面右缘 */
+.admin-page > main.wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
 .admin-page .admin-shell { display: block; }
 
 /* 后台标题栏吸顶，下滑不消失；不与侧边栏/内容重叠 */
@@ -20,7 +20,7 @@
   background: var(--bg);
   padding: 8px 0 12px; margin-bottom: 6px;
   border-bottom: 1px solid var(--line);
-  margin-left: 232px;
+  margin: 0 16px 6px 232px;
 }
 .admin-pagehead .page-sub { margin-bottom: 0; }
 
@@ -30,7 +30,12 @@
   width: 216px; z-index: 20; border-radius: 0;
   padding: 14px 10px 24px; overflow-y: auto;
 }
-.admin-main { margin-left: 232px; min-width: 0; }
+.admin-main { margin: 0 16px 0 232px; min-width: 0; width: auto; }
+
+/* 数据表撑满主内容宽度，列宽放宽、内边距加大，避免文字挤压竖排 */
+.admin-main .table-wrap, .admin-main table.data { width: 100%; }
+table.data th, table.data td { padding: 12px 16px; }
+table.data td { vertical-align: middle; }
 
 /* 证书实时预览 */
 #certPreview .cert-line { max-width: 420px; margin: 0 auto; }
