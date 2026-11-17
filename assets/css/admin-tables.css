@@ -1,0 +1,8 @@
+/* 后台题库表格：题型/分类/答案/分值/状态不换行并放宽列宽 */
+#questionsTable { min-width: 980px; }
+#questionsTable td { vertical-align: middle; }
+#questionsTable th:nth-child(3), #questionsTable td:nth-child(3) { white-space: nowrap; min-width: 84px; }
+#questionsTable th:nth-child(4), #questionsTable td:nth-child(4) { white-space: nowrap; min-width: 92px; }
+#questionsTable th:nth-child(6), #questionsTable td:nth-child(6) { white-space: nowrap; }
+#questionsTable th:nth-child(7), #questionsTable td:nth-child(7) { white-space: nowrap; width: 64px; }
+#questionsTable th:nth-child(8), #questionsTable td:nth-child(8) { white-space: nowrap; width: 88px; }
