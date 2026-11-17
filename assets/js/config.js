@@ -31,3 +31,12 @@ window.APP_CONFIG = {
   }
   m.setAttribute('content', 'width=' + w + ', initial-scale=1');
 })();
+
+/* 注入移动端适配样式（追加到 head 末尾，确保覆盖基础样式） */
+(function () {
+  if (document.querySelector('link[href*="mobile.css"]')) return;
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'assets/css/mobile.css';
+  document.head.appendChild(link);
+})();

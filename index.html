@@ -28,6 +28,14 @@
   .auth-card .forgot-row { margin: -2px 0 8px; }
   .auth-card .btn { padding: 8px 20px; }
   .auth-footer p { margin: 1px 0; line-height: 1.5; }
+
+  /* 移动端：宣传区与登录卡纵向堆叠 */
+  @media (max-width: 880px) {
+    .auth-page .wrap { width: calc(100% - 24px); }
+    .auth-hero { grid-template-columns: 1fr; gap: 22px; width: calc(100% - 24px); padding: 20px 0; }
+    .auth-card { max-width: 460px; margin: 0 auto; }
+    .promo { max-width: 100%; }
+  }
 </style>
 </head>
 <body class="auth-page">

@@ -1,0 +1,98 @@
+/* ============================================================
+ * 移动端适配（≤900px 平板 / ≤620px 手机）
+ * 由 config.js 动态注入，加载在 style.css 之后，覆盖窄屏布局
+ * ============================================================ */
+
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .header-nav { flex-wrap: wrap; }
+  .chart-row { grid-template-columns: 1fr; gap: 4px; }
+  .chart-bar-row { grid-template-columns: 120px 1fr 50px; }
+}
+
+@media (max-width: 620px) {
+  :root { --radius: 10px; }
+  body { font-size: 14.5px; }
+  .wrap { width: calc(100% - 24px); }
+  main { padding: 18px 0 40px; }
+
+  /* 头部 */
+  .site-header { padding: 10px 0; }
+  .site-header .wrap { gap: 10px; }
+  .brand { gap: 10px; min-width: 0; }
+  .brand-mark { width: 38px !important; height: 38px !important; font-size: 17px; }
+  .brand h1 { font-size: 16px !important; }
+  .brand p { font-size: 11.5px; }
+  .header-nav { width: 100%; margin-left: 0; gap: 4px 8px; }
+  .header-nav a, .header-nav button, .header-nav .user-chip { font-size: 13px; padding: 6px 10px; }
+
+  /* 标题 / 卡片 */
+  .page-title { font-size: 19px; }
+  .page-sub { margin-bottom: 14px; }
+  .card { padding: 15px; }
+  .card-title { margin-bottom: 12px; font-size: 15px; }
+
+  /* 表单：输入框 16px 避免 iOS 聚焦自动放大 */
+  .field input, .field select, .field textarea { font-size: 16px; padding: 10px 12px; }
+  .toolbar { gap: 8px; }
+  .toolbar .grow { min-width: 100%; }
+  .toolbar input, .toolbar select { font-size: 15px; width: 100%; }
+
+  /* 按钮 */
+  .btn { padding: 10px 16px; font-size: 14px; }
+  .btn-row { gap: 8px; }
+
+  /* 表格横向滚动，压缩内边距 */
+  table.data { min-width: 480px; font-size: 13px; }
+  table.data th, table.data td { padding: 9px 10px; }
+
+  /* 统计卡 */
+  .stat .v, .stat-value { font-size: 23px; }
+  .stat-card { padding: 14px; }
+
+  /* 管理端侧边栏：两列横向排布 */
+  .admin-side { padding: 10px 8px; }
+  .side-item { flex: 1 1 calc(50% - 4px); padding: 9px 10px; font-size: 13px; }
+
+  /* 答题页 */
+  .exam-topbar .wrap { gap: 8px; }
+  .timer { font-size: 16px; padding: 3px 10px; margin-left: 0; }
+  .q-item { padding: 14px; }
+  .q-text { font-size: 14.5px; }
+  .opt { padding: 10px 12px; font-size: 13.5px; }
+  .sheet-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .sheet-cell { height: 30px; font-size: 12px; }
+  .exam-nav, .exam-actions { gap: 8px; }
+  .exam-nav .btn, .exam-actions .btn { flex: 1; }
+
+  /* 结果页 / 证书 */
+  .result-hero { padding: 22px 16px; }
+  .result-hero .score { font-size: 36px; }
+  .cert-box { padding: 24px 16px; border-width: 6px; }
+  .cert-box .cert-title { font-size: 21px; letter-spacing: 2px; }
+  .cert-box .cert-name { font-size: 22px; }
+  .cert-box .cert-foot { flex-direction: column; gap: 8px; }
+
+  /* 模态框：按钮纵向铺满 */
+  .modal-mask { padding: 12px; }
+  .modal-head, .modal-body, .modal-foot { padding-left: 16px; padding-right: 16px; }
+  .modal-foot { flex-direction: column; }
+  .modal-foot .btn { width: 100%; }
+
+  /* 图表条 */
+  .chart-bar-row { grid-template-columns: 1fr; gap: 4px; }
+  .bar-row .name { width: 110px; }
+
+  /* 其它组件 */
+  .draft-board { left: 12px; right: 12px; width: auto; bottom: 12px; }
+  .carousel-slide { padding: 22px 18px; min-height: 110px; }
+  .carousel-slide .c-title { font-size: 17px; }
+  .comp-card { padding: 15px; }
+  .comp-meta { gap: 8px 14px; }
+  .rank-row { gap: 10px; }
+  .auth-hero { padding: 20px 0; }
+  .auth-copy h2 { font-size: 25px; }
+  .auth-card { padding: 18px 16px; }
+  .toast-box { width: calc(100% - 32px); }
+  .bulk-bar { flex-wrap: wrap; }
+}
