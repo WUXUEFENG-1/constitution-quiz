@@ -13,18 +13,28 @@
 .cert-box .cert-line { max-width: 430px; }
 .cert-box .cert-sign { margin-top: 40px; padding-right: 28px; }
 
+/* 选手端固定左侧导航栏（与管理端一致，整列停靠不随内容滚动） */
+.side-rail {
+  position: fixed; left: 0; top: var(--rail-top, 87px); bottom: 0;
+  width: 216px; z-index: 20; background: var(--navy-900);
+  border-radius: 0; padding: 14px 10px 24px; overflow-y: auto;
+}
+.side-rail .side-title { color: rgba(255,255,255,.6); font-size: 12px; letter-spacing: 1px; padding: 6px 12px 10px; }
+.side-rail a.side-item { text-decoration: none; width: 100%; }
+.player-main { margin-left: 232px; width: min(1180px, calc(100% - 264px)); min-width: 0; }
+
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .header-nav { flex-wrap: wrap; }
   .chart-row { grid-template-columns: 1fr; gap: 4px; }
   .chart-bar-row { grid-template-columns: 120px 1fr 50px; }
 
-  /* 后台固定导航栏在窄屏还原为横向排列，取消固定停靠 */
-  .admin-side {
+  /* 后台/选手端固定导航栏在窄屏还原为横向排列，取消固定停靠 */
+  .admin-side, .side-rail {
     position: static; width: auto; top: auto; bottom: auto; left: auto;
     overflow: visible; border-radius: var(--radius);
   }
-  .admin-pagehead, .admin-main { margin-left: 0; }
+  .admin-pagehead, .admin-main, .player-main { margin-left: 0; width: auto; }
 }
 
 @media (max-width: 620px) {
@@ -67,8 +77,8 @@
   .stat .v, .stat-value { font-size: 23px; }
   .stat-card { padding: 14px; }
 
-  /* 管理端侧边栏：两列横向排布 */
-  .admin-side { padding: 10px 8px; }
+  /* 管理端/选手端侧边栏：两列横向排布 */
+  .admin-side, .side-rail { padding: 10px 8px; }
   .admin-pagehead { top: 58px; }
   .side-item { flex: 1 1 calc(50% - 4px); padding: 9px 10px; font-size: 13px; }
 
