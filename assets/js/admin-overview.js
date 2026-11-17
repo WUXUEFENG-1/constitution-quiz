@@ -29,9 +29,9 @@
     document.getElementById("statCards").innerHTML = cards.map((c) => `
       <div class="stat-card"><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-sub">${c.sub}</div></div>`).join("");
 
-    // 系部分布
+    // 系部分布（旧系名按关键词归并到标准学院，如“应用经济系/应用经济学”→ 应用经济学院）
     const deptMap = {};
-    regs.forEach((r) => { const k = r.department || "未填写"; deptMap[k] = (deptMap[k] || 0) + 1; });
+    regs.forEach((r) => { const k = normalizeDept(r.department); deptMap[k] = (deptMap[k] || 0) + 1; });
     renderBars("deptBars", deptMap);
 
     // 班级分布
@@ -61,6 +61,18 @@
         <div class="chart-track"><div class="chart-fill" style="width:${x.rate}%"></div></div>
         <div class="chart-num">${x.rate}%（${x.n} 人）</div>
       </div>`).join("");
+  }
+
+  function normalizeDept(name) {
+    const d = String(name || "").trim();
+    if (!d) return "未填写";
+    if (/应用经济|经济/.test(d)) return "应用经济学院";
+    if (/数控/.test(d)) return "数控加工学院";
+    if (/电气/.test(d)) return "电气工程学院";
+    if (/汽车/.test(d)) return "汽车工程学院";
+    if (/机械|机器人/.test(d)) return "机械工程学院";
+    if (/现代服务|服务/.test(d)) return "现代服务学院";
+    return d;
   }
 
   function renderBars(elId, map) {
