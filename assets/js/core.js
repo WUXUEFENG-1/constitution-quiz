@@ -41,7 +41,7 @@
       const bar = document.createElement("div");
       bar.className = "config-bar";
       bar.innerHTML =
-        '系统尚未连接数据库：请编辑 <code>assets/js/config.js</code>，填入 Supabase 的 ' +
+        '系统尚未连接数据库：请编辑 <code>assets/js/config.js</code>，填入 Supabase的 ' +
         "<b>SUPABASE_URL</b> 与 <b>SUPABASE_ANON_KEY</b> 后重新部署。";
       document.body.prepend(bar);
     },
@@ -117,8 +117,8 @@
         throw new Error("not-staff");
       }
       if (role === "contestant" && API.isStaff(profile.role)) {
-        location.replace("admin.html");
-        throw new Error("is-staff");
+        const preview = new URLSearchParams(location.search).get("view") === "contestant";
+        if (!preview) { location.replace("admin.html"); throw new Error("is-staff"); }
       }
       API.applyBrand();
       return { user, profile };

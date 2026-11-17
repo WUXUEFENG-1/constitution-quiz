@@ -4,7 +4,7 @@
 
   async function load() {
     const [regRes, attRes, qRes] = await Promise.all([
-      API.sb.from("registrations").select("department"),
+      API.sb.from("registrations").select("department,class_name"),
       API.sb.from("attempts").select("score,total_score,correct_count,question_count,status,detail"),
       API.sb.from("questions").select("id,qtype,content,is_active")
     ]);
@@ -26,13 +26,21 @@
     document.getElementById("statCards").innerHTML = cards.map((c) => `
       <div class="stat-card"><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-sub">${c.sub}</div></div>`).join("");
 
+    // 系部分布
     const deptMap = {};
     regs.forEach((r) => { const k = r.department || "未填写"; deptMap[k] = (deptMap[k] || 0) + 1; });
     renderBars("deptBars", deptMap);
 
+    // 班级分布
+    const classMap = {};
+    regs.forEach((r) => { const k = r.class_name || "未填写"; classMap[k] = (classMap[k] || 0) + 1; });
+    renderBars("classBars", classMap);
+
+    // 状态分布
     const stateMap = { "已交卷": atts.length, "答题中": (attRes.data || []).filter((a) => a.status === "in_progress").length, "未参赛": Math.max(0, regs.length - atts.length) };
     renderBars("stateBars", stateMap);
 
+    // 各题正确率
     const stat = {};
     atts.forEach((a) => (a.detail || []).forEach((d) => {
       if (!stat[d.id]) stat[d.id] = { total: 0, correct: 0 };
