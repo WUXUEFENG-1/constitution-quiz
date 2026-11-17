@@ -3,25 +3,28 @@
   Admin.register("overview", { load });
 
   async function load() {
-    const [regRes, attRes, qRes] = await Promise.all([
-      API.sb.from("registrations").select("department,class_name"),
-      API.sb.from("attempts").select("score,total_score,correct_count,question_count,status,detail"),
+    const [profRes, attRes, qRes] = await Promise.all([
+      API.sb.from("profiles").select("full_name,student_no,department,class_name,role,status"),
+      API.sb.from("attempts").select("score,total_score,correct_count,question_count,status,detail,user_id"),
       API.sb.from("questions").select("id,qtype,content,is_active")
     ]);
-    const regs = regRes.data || [];
+    // 与“选手管理”同一数据源（profiles）：仅统计正常状态的选手账号，不含管理员/员工角色与封禁账号
+    const regs = (profRes.data || []).filter((p) => p.role === "contestant" && p.status !== "banned");
     const atts = (attRes.data || []).filter((a) => a.status === "submitted");
     const qs = qRes.data || [];
 
+    const submittedIds = new Set(atts.map((a) => a.user_id));
     const online = (attRes.data || []).filter((a) => a.status === "in_progress").length;
+    const submittedCount = submittedIds.size;
     const avg = atts.length ? (atts.reduce((s, a) => s + Number(a.score || 0), 0) / atts.length).toFixed(1) : "0";
     const totalCorrect = atts.reduce((s, a) => s + Number(a.correct_count || 0), 0);
     const totalQ = atts.reduce((s, a) => s + Number(a.question_count || 0), 0);
     const accuracy = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
     const cards = [
-      { label: "参赛总人数", value: regs.length, sub: "已提交报名" },
+      { label: "参赛总人数", value: regs.length, sub: "选手账号" },
       { label: "在线人数", value: online, sub: "正在答题" },
       { label: "平均分", value: avg, sub: atts.length ? "分" : "暂无成绩" },
-      { label: "答题正确率", value: accuracy + "%", sub: `已交卷 ${atts.length} 份` }
+      { label: "答题正确率", value: accuracy + "%", sub: `已交卷 ${submittedCount} 份` }
     ];
     document.getElementById("statCards").innerHTML = cards.map((c) => `
       <div class="stat-card"><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-sub">${c.sub}</div></div>`).join("");
@@ -37,7 +40,7 @@
     renderBars("classBars", classMap);
 
     // 状态分布
-    const stateMap = { "已交卷": atts.length, "答题中": (attRes.data || []).filter((a) => a.status === "in_progress").length, "未参赛": Math.max(0, regs.length - atts.length) };
+    const stateMap = { "已交卷": submittedCount, "答题中": online, "未参赛": Math.max(0, regs.length - submittedCount) };
     renderBars("stateBars", stateMap);
 
     // 各题正确率
