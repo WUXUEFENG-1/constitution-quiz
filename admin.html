@@ -45,6 +45,7 @@
       <button class="side-item" data-tab="cheat" data-perm="proctor"><span class="ico">⚠</span>防作弊记录</button>
       <button class="side-item" data-tab="scores" data-perm="statistician"><span class="ico">▥</span>成绩管理</button>
       <button class="side-item" data-tab="rank" data-perm="all"><span class="ico">☰</span>排行榜</button>
+      <button class="side-item" data-tab="classrank" data-perm="all"><span class="ico">▥</span>班级排行</button>
       <button class="side-item" data-tab="appeals" data-perm="admin"><span class="ico">✉</span>申诉审核</button>
       <button class="side-item" data-tab="certs" data-perm="admin"><span class="ico">✦</span>证书管理</button>
       <button class="side-item" data-tab="news" data-perm="admin"><span class="ico">◪</span>公告管理</button>
@@ -203,6 +204,24 @@
     </div>
   </section>
 
+  <!-- 班级排行 -->
+  <section id="panel-classrank" hidden>
+    <div class="card">
+      <div class="card-title">班级排行 <span class="right" id="classRankCount"></span></div>
+      <div class="toolbar">
+        <button class="btn soft sm" id="classRankRefresh">刷新</button>
+        <button class="btn ghost sm" id="classRankExport">导出班级排行（CSV）</button>
+        <span class="section-note">综合分 = 班级均分(百分制)×60% + 参与率×100×40%；参与率 = 交卷人数 / 班级总人数。</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>排名</th><th>系部</th><th>班级</th><th>应到</th><th>报名</th><th>交卷</th><th>参与率</th><th>均分</th><th>综合分</th></tr></thead>
+          <tbody id="classRankBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- 证书管理 -->
   <section id="panel-certs" hidden>
     <div class="card">
@@ -324,6 +343,8 @@
 <script src="assets/js/admin-appeals.js"></script>
 <script src="assets/js/admin-scores.js"></script>
 <script src="assets/js/admin-rank.js"></script>
+<script src="assets/js/class-roster.js"></script>
+<script src="assets/js/admin-class-rank.js"></script>
 <script src="assets/js/admin-certs.js"></script>
 <script src="assets/js/admin-news.js"></script>
 <script src="assets/js/admin-settings.js"></script>
