@@ -1,6 +1,6 @@
-/* 选手中心：报名、赛事、公告、消息、快捷入口、草稿板 */
+/* 选手中心：报名、赛事、公告、快捷入口、草稿板 */
 (function () {
-  let profile = null, registration = null, competitions = [], announcements = [], messages = [];
+  let profile = null, registration = null, competitions = [], announcements = [];
 
   init();
 
@@ -13,13 +13,12 @@
     document.getElementById("userChip").textContent = profile.full_name || "选手";
     document.getElementById("logoutBtn").onclick = () => API.signOut();
 
-    await Promise.all([loadRegistration(), loadCompetitions(), loadAnnouncements(), loadMessages(), API.loadSettings()]);
+    await Promise.all([loadRegistration(), loadCompetitions(), loadAnnouncements(), API.loadSettings()]);
     renderProfile();
     renderReg();
     renderHub();
     renderCompetitions();
     renderAnnouncements();
-    renderMessages();
     renderCarousel();
   }
 
@@ -73,17 +72,9 @@
     announcements = data || [];
   }
 
-  async function loadMessages() {
-    const { data } = await API.sb
-      .from("messages")
-      .select("*").eq("user_id", (await API.currentUser()).id)
-      .order("created_at", { ascending: false }).limit(20);
-    messages = data || [];
-  }
-
   function renderProfile() {
     document.getElementById("welcomeLine").textContent =
-      `欢迎你，${profile.full_name || "同学"}。请完成报名后在开放时间内参赛。`;
+      `欢迎你，${profile.full_name || "同学"}。可先在线练习；完成报名后在开放时间内参赛。`;
     const items = [
       ["姓名", profile.full_name], ["学号", profile.student_no],
       ["系部", profile.department], ["班级", profile.class_name], ["手机号", profile.phone || "—"]
@@ -97,12 +88,24 @@
     const action = document.getElementById("regAction");
     if (registration) {
       status.innerHTML = '<span class="badge green">已报名</span>';
-      action.innerHTML = `<div class="notice ok" style="margin:0">报名成功，时间：${API.fmtTime(registration.created_at)}。请留意开放时间按时参赛。</div>`;
+      action.innerHTML = `<div class="notice ok" style="margin:0;flex:1">报名成功，时间：${API.fmtTime(registration.created_at)}。请留意开放时间按时参赛。</div><button class="btn ghost" id="cancelRegBtn">取消报名</button>`;
+      document.getElementById("cancelRegBtn").onclick = doCancel;
     } else {
       status.innerHTML = '<span class="badge amber">未报名</span>';
       action.innerHTML = `<button class="btn" id="regBtn">立即报名参赛</button>`;
       document.getElementById("regBtn").onclick = doRegister;
     }
+  }
+
+  async function doCancel() {
+    if (!confirm("确认取消报名？取消后可在开放时间内重新报名。")) return;
+    const user = await API.currentUser();
+    const { error } = await API.sb.from("registrations").delete().eq("user_id", user.id);
+    if (error) return API.toast("取消报名失败：" + error.message, "error");
+    API.toast("已取消报名", "success");
+    await loadRegistration();
+    renderReg();
+    renderCompetitions();
   }
 
   async function doRegister() {
@@ -163,8 +166,8 @@
         <div class="comp-meta">
           <span>开放：<b>${c.start_at ? API.fmtTime(c.start_at) : "待定"}</b></span>
           <span>截止：<b>${c.end_at ? API.fmtTime(c.end_at) : "待定"}</b></span>
-          <span>时长：<b>${c.duration_minutes || 30} 分钟</b></span>
-          <span>题量：<b>${c.question_count || 40} 题</b></span>
+          <span>时长：<b>${c.duration_minutes ? c.duration_minutes + " 分钟" : "待定"}</b></span>
+          <span>题量：<b>${c.question_count ? c.question_count + " 题" : "待定"}</b></span>
         </div>
         ${c.rules ? `<div class="section-note" style="margin-top:10px">规则：${API.escapeHtml(c.rules)}</div>` : ""}
         <div class="btn-row" style="margin-top:12px">
@@ -186,25 +189,6 @@
         <div class="meta">${{ notice: "通知", rule: "规则", result: "结果" }[a.kind] || "通知"} · ${API.fmtTime(a.created_at)}</div>
         <div class="body">${API.escapeHtml(a.content)}</div>
       </div>`).join("");
-  }
-
-  function renderMessages() {
-    const box = document.getElementById("msgList");
-    const unread = messages.filter((m) => !m.is_read).length;
-    document.getElementById("msgCount").textContent = unread ? `${unread} 条未读` : "全部已读";
-    if (!messages.length) { box.innerHTML = '<div class="empty-state" style="padding:20px">暂无消息</div>'; return; }
-    box.innerHTML = messages.map((m) => `
-      <div class="news-item" data-mid="${m.id}" style="${m.is_read ? "opacity:.6" : ""}">
-        <div class="t">${API.escapeHtml(m.title)}</div>
-        <div class="meta">${API.fmtTime(m.created_at)}</div>
-        <div class="body">${API.escapeHtml(m.content)}</div>
-      </div>`).join("");
-    box.querySelectorAll("[data-mid]").forEach((el) => {
-      el.onclick = async () => {
-        await API.sb.from("messages").update({ is_read: true }).eq("id", el.dataset.mid);
-        await loadMessages(); renderMessages();
-      };
-    });
   }
 
   let boardOpen = false;

@@ -76,7 +76,7 @@
       Admin.btn("取消", "ghost", Admin.closeModal),
       Admin.btn("保存", "", async () => {
         const role = document.getElementById("fRole").value;
-        const { error } = await API.sb.rpc("admin_set_role", { p_user_id: u.id, p_role: role });
+        const { error } = await API.sb.rpc("admin_set_role", { p_id: u.id, p_role: role });
         if (error) return API.toast("失败：" + error.message, "error");
         API.toast("角色已更新", "success"); Admin.closeModal(); load();
       })
@@ -90,7 +90,7 @@
       Admin.btn("确认重置", "", async () => {
         const pwd = document.getElementById("fPwd").value.trim();
         if (pwd.length < 6) return API.toast("密码至少 6 位", "error");
-        const { error } = await API.sb.rpc("admin_reset_password", { p_user_id: u.id, p_new_password: pwd });
+        const { error } = await API.sb.rpc("admin_reset_password", { p_id: u.id, p_new_password: pwd });
         if (error) return API.toast("失败：" + error.message, "error");
         API.toast("密码已重置，已生成新密码", "success"); Admin.closeModal();
       })
@@ -100,14 +100,14 @@
   async function toggleBan(u) {
     const ban = u.status !== "banned";
     const reason = ban ? prompt("封禁原因（可留空）：") : null;
-    const { error } = await API.sb.rpc("admin_set_status", { p_user_id: u.id, p_status: ban ? "banned" : "active", p_reason: reason || null });
+    const { error } = await API.sb.rpc("admin_set_status", { p_id: u.id, p_status: ban ? "banned" : "active", p_reason: reason || null });
     if (error) return API.toast("失败：" + error.message, "error");
     API.toast(ban ? "已封禁该账号" : "已解封", "success"); load();
   }
 
   async function delUser(u) {
     if (!confirm(`确认删除账号 ${u.full_name}（${u.student_no}）？该操作不可恢复。`)) return;
-    const { error } = await API.sb.rpc("admin_delete_user", { p_user_id: u.id });
+    const { error } = await API.sb.rpc("admin_delete_user", { p_id: u.id });
     if (error) return API.toast("失败：" + error.message, "error");
     API.toast("账号已删除", "success"); load();
   }
