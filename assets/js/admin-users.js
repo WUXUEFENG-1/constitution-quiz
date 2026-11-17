@@ -99,7 +99,11 @@
 
   async function toggleBan(u) {
     const ban = u.status !== "banned";
-    const reason = ban ? prompt("封禁原因（可留空）：") : null;
+    let reason = null;
+    if (ban) {
+      reason = await API.prompt("封禁原因（可留空）：", "", "请输入封禁原因");
+      if (reason === null) return;
+    }
     const { error } = await API.sb.rpc("admin_set_status", { p_id: u.id, p_status: ban ? "banned" : "active", p_reason: reason || null });
     if (error) return API.toast("失败：" + error.message, "error");
     API.toast(ban ? "已封禁该账号" : "已解封", "success"); load();
