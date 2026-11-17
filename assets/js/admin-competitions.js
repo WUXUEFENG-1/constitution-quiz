@@ -40,7 +40,7 @@
           <span>申诉：${c.appeal_enabled === false ? "关闭" : "开启"}</span>
           <span>切屏上限：${c.switch_limit || 3} 次</span>
         </div>
-        ${c.rules ? `<div class="comp-rules">竞赛规则：${API.escapeHtml(c.rules)}</div>` : ""}
+        ${c.rules ? `<div class="comp-rules">竞赛规则：${API.renderRules(c.rules)}</div>` : ""}
         ${c.note ? `<div class="comp-note">备注：${API.escapeHtml(c.note)}</div>` : ""}
       </div>`;
     }).join("");
