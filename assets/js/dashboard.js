@@ -61,6 +61,10 @@
       statusEl.innerHTML = '<span class="badge green">已报名</span>';
       actionEl.innerHTML =
         `<div class="notice ok">报名成功，时间：${API.fmtTime(data.created_at)}。请留意答题开放时间，按时参赛。</div>`;
+      const welcome = document.getElementById("welcomeLine");
+      if (welcome && ctx.profile) {
+        welcome.textContent = `欢迎你，${ctx.profile.full_name || "同学"}。请按开放时间进入答题。`;
+      }
     } else {
       statusEl.innerHTML = '<span class="badge amber">未报名</span>';
       actionEl.innerHTML =
@@ -88,6 +92,7 @@
       if (error) throw error;
       API.toast("报名成功", "success");
       await loadRegistration();
+      renderExamEntry();
     } catch (err) {
       API.toast("报名失败：" + (err.message || err), "error", 3600);
       btn.disabled = false;
@@ -186,6 +191,7 @@
 
     let rank = "—";
     try {
+      const user = await API.currentUser();
       const { count } = await API.sb
         .from("attempts")
         .select("id", { count: "exact", head: true })
