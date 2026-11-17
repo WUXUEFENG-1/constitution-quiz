@@ -31,20 +31,25 @@
   <h2 class="page-title">竞赛管理后台</h2>
   <p class="page-sub" id="roleSub">数据看板 · 用户 · 题库 · 竞赛 · 监考 · 申诉 · 成绩 · 证书 · 公告 · 日志 · 设置</p>
 
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="overview" data-perm="all">数据看板</button>
-    <button class="tab" data-tab="users" data-perm="admin">用户管理</button>
-    <button class="tab" data-tab="questions" data-perm="questioner">题库管理</button>
-    <button class="tab" data-tab="competitions" data-perm="admin">竞赛与试卷</button>
-    <button class="tab" data-tab="monitor" data-perm="proctor">监考监控</button>
-    <button class="tab" data-tab="cheat" data-perm="proctor">防作弊记录</button>
-    <button class="tab" data-tab="appeals" data-perm="admin">申诉管理</button>
-    <button class="tab" data-tab="scores" data-perm="statistician">成绩管理</button>
-    <button class="tab" data-tab="certs" data-perm="admin">证书管理</button>
-    <button class="tab" data-tab="news" data-perm="admin">公告管理</button>
-    <button class="tab" data-tab="logs" data-perm="admin">系统日志</button>
-    <button class="tab" data-tab="settings" data-perm="admin">系统设置</button>
-  </div>
+  <div class="admin-shell">
+    <aside class="admin-side" id="sideNav">
+      <div class="side-title">功能菜单</div>
+      <button class="side-item active" data-tab="overview" data-perm="all"><span class="ico">▦</span>数据看板</button>
+      <button class="side-item" data-tab="users" data-perm="admin"><span class="ico">☻</span>选手管理</button>
+      <button class="side-item" data-tab="questions" data-perm="questioner"><span class="ico">☰</span>题库管理</button>
+      <button class="side-item" data-tab="competitions" data-perm="admin"><span class="ico">⚑</span>竞赛管理</button>
+      <button class="side-item" data-tab="papers" data-perm="admin"><span class="ico">▤</span>试卷管理</button>
+      <button class="side-item" data-tab="monitor" data-perm="proctor"><span class="ico">◉</span>实时监考</button>
+      <button class="side-item" data-tab="cheat" data-perm="proctor"><span class="ico">⚠</span>防作弊记录</button>
+      <button class="side-item" data-tab="scores" data-perm="statistician"><span class="ico">▥</span>成绩管理</button>
+      <button class="side-item" data-tab="appeals" data-perm="admin"><span class="ico">✉</span>申诉审核</button>
+      <button class="side-item" data-tab="certs" data-perm="admin"><span class="ico">✦</span>证书管理</button>
+      <button class="side-item" data-tab="news" data-perm="admin"><span class="ico">◪</span>公告管理</button>
+      <button class="side-item" data-tab="logs" data-perm="admin"><span class="ico">≣</span>日志管理</button>
+      <button class="side-item" data-tab="roles" data-perm="admin"><span class="ico">⚷</span>角色权限</button>
+      <button class="side-item" data-tab="settings" data-perm="admin"><span class="ico">⚙</span>系统设置</button>
+    </aside>
+    <div class="admin-main">
 
   <!-- 数据看板 -->
   <section id="panel-overview">
@@ -89,14 +94,15 @@
         <button class="btn sm" id="qAddBtn">新增题目</button>
         <button class="btn soft sm" id="qImportBtn">批量导入（Excel / CSV / Word / PDF）</button>
         <button class="btn ghost sm" id="qTemplateBtn">下载模板</button>
+        <button class="btn danger sm" id="qBulkDel">删除所选</button>
         <input type="file" id="qFile" accept=".xlsx,.xls,.csv,.docx,.pdf" hidden>
       </div>
       <div class="notice" style="margin-bottom:14px">
-        支持 Excel / CSV 直接解析；Word（.docx）、PDF 上传后调用 DeepSeek 自动识别题型、题干、选项、答案与解析，确认后入库。
+        支持 Excel / CSV 直接解析；Word（.docx）、PDF 上传后调用 DeepSeek 自动识别题型、题干、选项、答案与解析，确认后入库。勾选题目后可多选删除。
       </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr><th>#</th><th>题型</th><th>分类</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th></tr></thead>
+          <thead><tr><th><input type="checkbox" id="qCheckAll" class="q-check"></th><th>#</th><th>题型</th><th>分类</th><th>题干</th><th>正确答案</th><th>分值</th><th>状态</th><th>操作</th></tr></thead>
           <tbody id="qBody"></tbody>
         </table>
       </div>
@@ -180,6 +186,11 @@
         <div class="field"><label>落款单位</label><input type="text" id="certOrg"></div>
       </div>
       <div class="field"><label>页脚文字</label><input type="text" id="certFoot"></div>
+      <div class="field">
+        <label>证书背景 / 模板图（可选）</label>
+        <input type="file" id="certImg" accept="image/*">
+        <img class="preview" id="certImgPreview" style="max-width:220px;max-height:140px;margin-top:8px;border:1px solid var(--line);border-radius:10px" hidden>
+      </div>
       <button class="btn sm" id="certSaveTpl">保存模板</button>
     </div>
     <div class="card" style="margin-top:18px">
@@ -230,6 +241,10 @@
         <div class="field"><label>登录验证码</label><select id="setCaptcha"><option value="true">开启</option><option value="false">关闭</option></select></div>
         <div class="field"><label>切屏提醒次数阈值</label><input type="number" id="setMaxSwitch" min="1" max="20"></div>
       </div>
+      <div class="grid-2">
+        <div class="field"><label>首页轮播标题</label><input type="text" id="setCarTitle" placeholder="尊崇宪法 · 学法守法 知法用法"></div>
+        <div class="field"><label>首页轮播描述</label><input type="text" id="setCarDesc" placeholder="轮播副标题文案"></div>
+      </div>
       <button class="btn sm" id="setSaveSite">保存页面与安全</button>
     </div>
     <div class="card" style="margin-top:18px">
@@ -242,6 +257,8 @@
       <button class="btn sm" id="setSaveDs">保存解析配置</button>
     </div>
   </section>
+    </div>
+  </div>
 </main>
 
 <footer class="site-footer">
