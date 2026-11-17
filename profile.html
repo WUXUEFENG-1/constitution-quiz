@@ -27,12 +27,13 @@
 
 <main class="wrap">
   <h2 class="page-title">个人中心</h2>
-  <p class="page-sub">个人信息、修改密码、历史成绩（含在线练习）</p>
+  <p class="page-sub">个人信息、修改密码、历史成绩、我的证书</p>
 
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="info">个人信息</button>
     <button class="tab" data-tab="password">修改密码</button>
     <button class="tab" data-tab="history">历史成绩</button>
+    <button class="tab" data-tab="certs">我的证书</button>
   </div>
 
   <section id="panel-info">
@@ -74,6 +75,10 @@
         </table>
       </div>
     </div>
+  </section>
+
+  <section id="panel-certs" hidden>
+    <div id="certList"></div>
   </section>
 
 </main>

@@ -30,6 +30,8 @@
     document.getElementById("userChip").textContent =
       `${ctx.profile.full_name || "管理员"} · ${API.roleLabel(ctx.profile.role)}`;
     document.getElementById("logoutBtn").onclick = () => API.signOut();
+    fitPageHead();
+    window.addEventListener("resize", fitPageHead);
 
     document.querySelectorAll(".side-item").forEach((t) => {
       if (!Admin.can(t.dataset.perm)) t.style.display = "none";
@@ -47,6 +49,13 @@
 
     await API.loadSettings();
     switchTab("overview");
+  }
+
+  /* 标题栏吸顶偏移 = 头部实际高度，避免被头部压住半截 */
+  function fitPageHead() {
+    const hdr = document.querySelector(".site-header");
+    const ph = document.querySelector(".admin-pagehead");
+    if (hdr && ph) ph.style.top = hdr.offsetHeight + "px";
   }
 
   function switchTab(tab) {
