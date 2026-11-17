@@ -3,6 +3,16 @@
  * 由 config.js 动态注入，加载在 style.css 之后，覆盖窄屏布局
  * ============================================================ */
 
+/* 证书版式：角花与正文/落款留出留白，避免相互重叠（全站生效） */
+.cert-box { padding: 56px 88px 52px; }
+.cert-box .corner { width: 76px; height: 76px; }
+.cert-box .corner.tl, .cert-box .corner.tr { top: 14px; }
+.cert-box .corner.bl, .cert-box .corner.br { bottom: 14px; }
+.cert-box .corner.tl, .cert-box .corner.bl { left: 14px; }
+.cert-box .corner.tr, .cert-box .corner.br { right: 14px; }
+.cert-box .cert-line { max-width: 430px; }
+.cert-box .cert-sign { margin-top: 40px; padding-right: 28px; }
+
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .header-nav { flex-wrap: wrap; }
@@ -76,8 +86,9 @@
   /* 结果页 / 证书 */
   .result-hero { padding: 22px 16px; }
   .result-hero .score { font-size: 36px; }
-  .cert-box { padding: 30px 18px 24px; border-width: 1px; }
-  .cert-box .corner { width: 60px; height: 60px; }
+  .cert-box { padding: 30px 36px 26px; border-width: 1px; }
+  .cert-box .corner { width: 52px; height: 52px; }
+  .cert-box .cert-sign { padding-right: 10px; }
   .cert-box .cert-title { font-size: 22px; letter-spacing: 4px; }
   .cert-box .cert-name { font-size: 20px; }
   .cert-box .cert-name-line { width: 150px; }
