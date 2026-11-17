@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>申诉 · <span data-brand="EVENT_SHORT"></span></title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+        <div class="brand-sub-unit">主办单位：<span data-brand="HOST_UNIT"></span></div>
+        <div class="brand-sub-unit">承办单位：<span data-brand="ORGANIZER_UNIT"></span></div>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="home.html">选手中心</a>
+      <a href="result.html">我的成绩</a>
+      <span class="user-chip" id="userChip">选手</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="max-width:860px">
+  <h2 class="page-title">异议申诉</h2>
+  <p class="page-sub">对题目内容或分数判定有异议，可在线提交；组委会审核后在此回复。</p>
+
+  <div class="card">
+    <div class="card-title">提交申诉</div>
+    <form id="appealForm">
+      <div class="grid-2">
+        <div class="field">
+          <label>申诉类型 <span class="req">*</span></label>
+          <select id="aKind">
+            <option value="question">题目异议（题干 / 答案 / 解析）</option>
+            <option value="score">分数异议（判分有误）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>关联答卷</label>
+          <input type="text" id="aAttempt" readonly placeholder="从成绩页跳转时自动带入">
+        </div>
+      </div>
+      <div class="field">
+        <label>申诉内容 <span class="req">*</span></label>
+        <textarea id="aContent" rows="4" placeholder="请写明题号、你的疑问与依据，至少 5 个字"></textarea>
+      </div>
+      <button type="submit" class="btn">提交申诉</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-title">我的申诉记录</div>
+    <div id="appealList"><div class="empty-state" style="padding:20px">暂无申诉</div></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span class="foot-main" data-brand="FOOTER_MAIN"></span>
+  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/appeals.js"></script>
+</body>
+</html>

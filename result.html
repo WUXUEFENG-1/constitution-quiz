@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成绩与解析 · <span data-brand="EVENT_SHORT"></span></title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">宪</span>
+      <div>
+        <h1 data-brand="ORG_NAME">云南工业信息职业学院</h1>
+        <p data-brand="EVENT_NAME">第二届“学宪法 讲宪法”校园知识竞赛</p>
+        <div class="brand-sub-unit">主办单位：<span data-brand="HOST_UNIT"></span></div>
+        <div class="brand-sub-unit">承办单位：<span data-brand="ORGANIZER_UNIT"></span></div>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="home.html">选手中心</a>
+      <a href="leaderboard.html">排行榜</a>
+      <a href="appeals.html">申诉</a>
+      <span class="user-chip" id="userChip">选手</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="resultMain" style="padding-top:24px">
+  <div class="empty-state">正在加载成绩…</div>
+</main>
+
+<footer class="site-footer">
+  <span class="foot-main" data-brand="FOOTER_MAIN"></span>
+  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/result.js"></script>
+</body>
+</html>
