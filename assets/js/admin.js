@@ -8,7 +8,6 @@
     statistician: (r) => ["admin", "sub_admin", "statistician"].includes(r)
   };
 
-  /* 侧边栏别名 → 实际面板/钩子 */
   const ALIAS = { papers: "competitions", roles: "users" };
   const PANELS = ["overview", "users", "questions", "competitions", "monitor", "cheat", "appeals", "scores", "certs", "news", "logs", "settings"];
 
@@ -40,6 +39,7 @@
       switchTab(btn.dataset.tab);
     });
 
+    closeModal();
     document.getElementById("modalClose").onclick = closeModal;
     document.getElementById("modalMask").onclick = (e) => { if (e.target.id === "modalMask") closeModal(); };
 
