@@ -34,6 +34,24 @@
     document.getElementById("forgotClose").onclick = closeForgot;
     document.getElementById("forgotOk").onclick = closeForgot;
     forgot.onclick = (e) => { if (e.target.id === "forgotModal") closeForgot(); };
+
+    initPromo();
+  }
+
+  function initPromo() {
+    const track = document.getElementById("promoTrack");
+    const dots = document.getElementById("promoDots");
+    if (!track || !dots) return;
+    const slides = track.children.length;
+    const btns = [...dots.children];
+    let cur = 0;
+    const go = (i) => {
+      cur = (i + slides) % slides;
+      track.style.transform = `translateX(-${cur * 100}%)`;
+      btns.forEach((d, k) => d.classList.toggle("on", k === cur));
+    };
+    btns.forEach((d, i) => (d.onclick = () => go(i)));
+    if (slides > 1) setInterval(() => go(cur + 1), 5000);
   }
 
   async function onSubmit(e) {

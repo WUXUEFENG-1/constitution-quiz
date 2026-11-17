@@ -10,7 +10,13 @@
   .auth-page .site-header { padding: 10px 0; }
   .auth-hero { width: min(1360px, calc(100% - 40px)); grid-template-columns: 1.12fr 400px; gap: 56px; padding: 16px 0; }
   .auth-copy p { max-width: 640px; }
-  .auth-features { max-width: 580px; margin-top: 18px; }
+  .promo { position: relative; margin-top: 18px; max-width: 560px; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .promo-track { display: flex; transition: transform .45s ease; }
+  .promo-slide { min-width: 100%; }
+  .promo-slide img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .promo-dots { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 7px; }
+  .promo-dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 50%; background: rgba(255,255,255,.55); cursor: pointer; }
+  .promo-dots button.on { background: #fff; width: 20px; border-radius: 5px; }
   .auth-copy h2 { margin-bottom: 10px; }
   .auth-card { padding: 16px 18px; }
   .auth-card .brand-mark { width: 46px !important; height: 46px !important; margin: 0 auto 8px !important; font-size: 22px !important; }
@@ -46,11 +52,17 @@
   <div class="auth-copy">
     <h2>尊崇宪法<br>学法守法 <em>知法用法</em></h2>
     <p>第二届“学宪法 讲宪法”校园知识竞赛线上答题平台。选手完成注册与报名后，可在开放时间内进入答题，系统自动判分、即时出分；管理员可实时查看报名与成绩，并导出名单。</p>
-    <div class="auth-features">
-      <div><b>在线练习</b>随机抽题、即时解析，赛前随时热身</div>
-      <div><b>限时答题</b>统一开放时间，到点自动交卷</div>
-      <div><b>自动判分</b>单选、多选、判断、填空全题型</div>
-      <div><b>成绩导出</b>管理员一键导出 Excel 可读报表</div>
+    <div class="promo" id="promoCarousel">
+      <div class="promo-track" id="promoTrack">
+        <div class="promo-slide"><img src="assets/promo-1.svg" alt="12·4 国家宪法日宣传海报"></div>
+        <div class="promo-slide"><img src="assets/promo-2.svg" alt="法治校园宣传海报"></div>
+        <div class="promo-slide"><img src="assets/promo-3.svg" alt="学宪法讲宪法宣传海报"></div>
+      </div>
+      <div class="promo-dots" id="promoDots">
+        <button type="button" class="on"></button>
+        <button type="button"></button>
+        <button type="button"></button>
+      </div>
     </div>
   </div>
 
