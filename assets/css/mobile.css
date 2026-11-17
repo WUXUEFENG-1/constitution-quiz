@@ -69,9 +69,12 @@
   /* 结果页 / 证书 */
   .result-hero { padding: 22px 16px; }
   .result-hero .score { font-size: 36px; }
-  .cert-box { padding: 24px 16px; border-width: 6px; }
-  .cert-box .cert-title { font-size: 21px; letter-spacing: 2px; }
-  .cert-box .cert-name { font-size: 22px; }
+  .cert-box { padding: 30px 18px 24px; border-width: 1px; }
+  .cert-box .corner { width: 60px; height: 60px; }
+  .cert-box .cert-title { font-size: 22px; letter-spacing: 4px; }
+  .cert-box .cert-name { font-size: 20px; }
+  .cert-box .cert-name-line { width: 150px; }
+  .cert-box .cert-line { font-size: 13.5px; }
   .cert-box .cert-foot { flex-direction: column; gap: 8px; }
 
   /* 模态框：按钮纵向铺满 */
