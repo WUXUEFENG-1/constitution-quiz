@@ -19,7 +19,6 @@
 .admin-pagehead .page-sub { margin-bottom: 8px; }
 
 /* 证书实时预览 */
-#certPreview { border: 6px solid var(--blue-100); }
-#certPreview .cert-line { max-width: 420px; margin: 6px auto; }
+#certPreview .cert-line { max-width: 420px; margin: 0 auto; }
 #certPreview .cert-title { background: transparent; }
 #certPreview .cert-sign { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }

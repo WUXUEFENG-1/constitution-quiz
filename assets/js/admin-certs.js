@@ -35,10 +35,13 @@
     const title = document.getElementById("certTitle").value.trim() || "参赛证书";
     const org = document.getElementById("certOrg").value.trim();
     const foot = document.getElementById("certFoot").value.trim();
+    const now = new Date();
+    const cnDate = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
     document.getElementById("pvTitle").textContent = title;
     document.getElementById("pvOrg").textContent = org;
     document.getElementById("pvFoot").textContent = foot;
-    document.getElementById("pvDate").textContent = API.fmtTime(new Date().toISOString()).slice(0, 10);
+    document.getElementById("pvLine").textContent = `兹证明你于 ${cnDate} 参加${API.cfg.ORG_NAME}${API.cfg.EVENT_NAME}。`;
+    document.getElementById("pvDate").textContent = cnDate;
     const box = document.getElementById("certPreview");
     if (certImage) {
       box.style.backgroundImage = `url(${certImage})`;
