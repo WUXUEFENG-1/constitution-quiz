@@ -51,24 +51,24 @@ begin
     end if;
   end if;
 
-  -- 按题型固定配比抽题；打乱与否沿用赛事 shuffle 设置
+  -- 按题型固定配比抽题；在各题型题库内随机抽取
   select coalesce(jsonb_agg(t), '[]'::jsonb) into v_questions
   from (
     (select jsonb_build_object('id',q.id,'qtype',q.qtype,'content',q.content,'options',q.options,'score',1) as t
        from public.questions q where q.is_active and q.qtype = 'single'
-       order by case when v_comp.shuffle then random() else 0 end, q.sort_no, q.created_at limit 50)
+       order by random() limit 50)
     union all
     (select jsonb_build_object('id',q.id,'qtype',q.qtype,'content',q.content,'options',q.options,'score',1.5) as t
        from public.questions q where q.is_active and q.qtype = 'multiple'
-       order by case when v_comp.shuffle then random() else 0 end, q.sort_no, q.created_at limit 20)
+       order by random() limit 20)
     union all
     (select jsonb_build_object('id',q.id,'qtype',q.qtype,'content',q.content,'options',q.options,'score',1) as t
        from public.questions q where q.is_active and q.qtype = 'judge'
-       order by case when v_comp.shuffle then random() else 0 end, q.sort_no, q.created_at limit 10)
+       order by random() limit 10)
     union all
     (select jsonb_build_object('id',q.id,'qtype',q.qtype,'content',q.content,'options',q.options,'score',2) as t
        from public.questions q where q.is_active and q.qtype = 'fill'
-       order by case when v_comp.shuffle then random() else 0 end, q.sort_no, q.created_at limit 5)
+       order by random() limit 5)
   ) s;
 
   if jsonb_array_length(v_questions) = 0 then raise exception '题库暂无可用题目，请联系管理员导入'; end if;
