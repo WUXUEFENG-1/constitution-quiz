@@ -1,14 +1,23 @@
-/* 班级排行：按班级参与率与百分制均分核算综合分，支持导出 CSV */
+/* 班级排行：按班级参与率与百分制均分核算综合分，支持筛选与导出 CSV */
 (function () {
   const W_AVG = 0.6;   // 均分权重
   const W_RATE = 0.4;  // 参与率权重
-  let rows = [];
+  let allRows = [];
+  let filtered = [];
 
   Admin.register("classrank", { load });
 
   async function load() {
     document.getElementById("classRankRefresh").onclick = load;
     document.getElementById("classRankExport").onclick = exportCSV;
+
+    const searchEl = document.getElementById("classRankSearch");
+    const deptEl = document.getElementById("classRankDept");
+    const stateEl = document.getElementById("classRankState");
+    [searchEl, deptEl, stateEl].forEach((el) => {
+      el.oninput = applyFilterAndRender;
+      el.onchange = applyFilterAndRender;
+    });
 
     const [profRes, attRes] = await Promise.all([
       API.sb.from("profiles").select("id,full_name,student_no,department,class_name,role,status"),
@@ -53,7 +62,7 @@
     });
 
     // 汇总指标
-    rows = Object.entries(roster).map(([cls, e]) => {
+    allRows = Object.entries(roster).map(([cls, e]) => {
       const total = e.extra ? Math.max(e.reg, e.sub) : e.total;
       const rate = total > 0 ? e.sub / total : 0;
       const avgPct = e.sub > 0 ? e.pctSum / e.sub : 0;
@@ -66,18 +75,53 @@
     }).filter((r) => r.total > 0 || r.reg > 0 || r.sub > 0)
       .sort((a, b) => b.score - a.score || b.rate - a.rate || b.avgPct - a.avgPct);
 
+    fillDeptOptions();
+    applyFilter();
+    render();
+  }
+
+  function stateOf(r) {
+    if (r.sub > 0) return "submitted";
+    if (r.reg > 0) return "registered";
+    return "idle";
+  }
+
+  function fillDeptOptions() {
+    const sel = document.getElementById("classRankDept");
+    const cur = sel.value;
+    const depts = [...new Set(allRows.map((r) => r.dept).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">全部系部</option>' +
+      depts.map((d) => `<option value="${API.escapeHtml(d)}">${API.escapeHtml(d)}</option>`).join("");
+    sel.value = depts.includes(cur) ? cur : "";
+  }
+
+  function applyFilter() {
+    const kw = (document.getElementById("classRankSearch").value || "").trim().toLowerCase();
+    const dept = document.getElementById("classRankDept").value;
+    const st = document.getElementById("classRankState").value;
+    filtered = allRows.filter((r) => {
+      if (dept && r.dept !== dept) return false;
+      if (st && stateOf(r) !== st) return false;
+      if (kw && !r.cls.toLowerCase().includes(kw)) return false;
+      return true;
+    });
+  }
+
+  function applyFilterAndRender() {
+    applyFilter();
     render();
   }
 
   function render() {
     const body = document.getElementById("classRankBody");
     const count = document.getElementById("classRankCount");
-    if (count) count.textContent = `共 ${rows.length} 个班级`;
-    if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center">暂无班级数据</td></tr>';
+    const base = `共 ${allRows.length} 个班级`;
+    if (count) count.textContent = filtered.length !== allRows.length ? `${base}（筛选 ${filtered.length}）` : base;
+    if (!filtered.length) {
+      body.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center">暂无符合条件的班级</td></tr>';
       return;
     }
-    body.innerHTML = rows.map((r, i) => {
+    body.innerHTML = filtered.map((r, i) => {
       const rate = Math.round(r.rate * 100);
       const avg = r.sub > 0 ? r.avgPct.toFixed(1) : "—";
       return `<tr>
@@ -95,9 +139,9 @@
   }
 
   function exportCSV() {
-    if (!rows.length) return API.toast("暂无可导出的班级排行数据", "error");
+    if (!filtered.length) return API.toast("暂无可导出的班级排行数据", "error");
     const header = ["排名", "系部", "班级", "应到人数", "报名人数", "交卷人数", "参与率", "均分(百分制)", "原始均分", "综合分"];
-    const lines = rows.map((r, i) => [
+    const lines = filtered.map((r, i) => [
       i + 1, r.dept || "", r.cls, r.total, r.reg, r.sub,
       Math.round(r.rate * 100) + "%",
       r.sub > 0 ? r.avgPct.toFixed(1) : "",

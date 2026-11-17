@@ -211,6 +211,14 @@
       <div class="toolbar">
         <button class="btn soft sm" id="classRankRefresh">刷新</button>
         <button class="btn ghost sm" id="classRankExport">导出班级排行（CSV）</button>
+        <input type="text" id="classRankSearch" class="grow" placeholder="按班级名称搜索">
+        <select id="classRankDept"><option value="">全部系部</option></select>
+        <select id="classRankState">
+          <option value="">全部状态</option>
+          <option value="submitted">已交卷</option>
+          <option value="registered">已报名未交卷</option>
+          <option value="idle">未报名</option>
+        </select>
         <span class="section-note">综合分 = 班级均分(百分制)×60% + 参与率×100×40%；参与率 = 交卷人数 / 班级总人数。</span>
       </div>
       <div class="table-wrap">
