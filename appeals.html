@@ -37,20 +37,30 @@
     <form id="appealForm">
       <div class="grid-2">
         <div class="field">
+          <label>选择竞赛 <span class="req">*</span></label>
+          <select id="aComp"></select>
+        </div>
+        <div class="field">
           <label>申诉类型 <span class="req">*</span></label>
           <select id="aKind">
             <option value="question">题目异议（题干 / 答案 / 解析）</option>
             <option value="score">分数异议（判分有误）</option>
           </select>
         </div>
-        <div class="field">
-          <label>关联答卷</label>
-          <input type="text" id="aAttempt" readonly placeholder="从成绩页跳转时自动带入">
-        </div>
       </div>
       <div class="field">
-        <label>申诉内容 <span class="req">*</span></label>
+        <label>关联答卷</label>
+        <input type="text" id="aAttempt" readonly placeholder="从成绩页跳转时自动带入">
+      </div>
+      <div class="field">
+        <label>异议说明 <span class="req">*</span></label>
         <textarea id="aContent" rows="4" placeholder="请写明题号、你的疑问与依据，至少 5 个字"></textarea>
+      </div>
+      <div class="field appeal-shot">
+        <label>截图佐证（可选，限 2MB 以内）</label>
+        <input type="file" id="aShot" accept="image/*">
+        <img class="preview" id="shotPreview" hidden>
+        <div class="shot-name" id="shotName"></div>
       </div>
       <button type="submit" class="btn">提交申诉</button>
     </form>

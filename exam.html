@@ -30,6 +30,12 @@
           答题期间请勿切换窗口、复制题目或离开页面；系统将记录切屏行为，多次异常将按违规处理。
         </div>
         <div class="q-list" id="qList"></div>
+        <div class="exam-nav">
+          <button class="btn ghost sm" id="prevBtn">← 上一题</button>
+          <button type="button" class="q-mark" id="markBtn">☆ 标记本题</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="nextBtn">下一题 →</button>
+        </div>
         <div class="exam-actions">
           <button class="btn" id="submitBtn">提交答卷</button>
           <span class="progress-text" id="progressText">已作答 0 / 0</span>
@@ -40,9 +46,13 @@
         <div class="card sheet">
           <div class="card-title" style="font-size:14px">答题卡</div>
           <div class="sheet-grid" id="sheet"></div>
-          <div style="margin-top:14px;font-size:12.5px;color:var(--ink-3);line-height:1.6">
-            <span style="display:inline-block;width:10px;height:10px;background:var(--blue-100);border:1px solid #b8d8f2;border-radius:3px;margin-right:5px"></span>已作答
-            <div style="margin-top:6px">点击题号可快速定位；倒计时结束系统自动交卷。</div>
+          <div class="sheet-legend">
+            <span><i class="legend-done"></i>已答</span>
+            <span><i class="legend-todo"></i>未答</span>
+            <span><i class="legend-marked"></i>标记</span>
+          </div>
+          <div style="margin-top:10px;font-size:12.5px;color:var(--ink-3);line-height:1.6">
+            点击题号可快速定位；倒计时结束系统自动交卷。
           </div>
           <div class="notice warn" style="margin-top:12px;font-size:12.5px">提交后不可修改，每人仅一次作答机会。</div>
         </div>
@@ -64,6 +74,27 @@
       <p style="font-size:13.5px;color:var(--ink-2)">请立即返回答题；累计多次异常切换将被标记为违规，成绩可能作废。</p>
     </div>
     <div class="modal-foot"><button class="btn" id="cheatOk">我知道了，继续答题</button></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="submitModal" hidden>
+  <div class="modal">
+    <div class="modal-head"><h3>确认提交答卷</h3></div>
+    <div class="modal-body">
+      <p id="submitTip" style="color:var(--ink-2)">提交后不可修改，确认提交当前答卷？</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="submitCancel">继续作答</button>
+      <button class="btn" id="submitConfirm">确认交卷</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="timeoutModal" hidden>
+  <div class="modal cheat-modal">
+    <div class="modal-head"><h3>时间提醒</h3></div>
+    <div class="modal-body"><p class="cheat-warn" id="timeoutText">答题时间即将结束，请尽快完成并交卷。</p></div>
+    <div class="modal-foot"><button class="btn" id="timeoutOk">继续答题</button></div>
   </div>
 </div>
 

@@ -39,8 +39,9 @@
   </div>
 
   <div class="auth-card">
-    <h3>账号登录</h3>
-    <p class="sub">选手使用本人学号登录；管理员使用管理员账号登录</p>
+    <div class="emblem"><span class="star">★</span><span class="word">宪</span></div>
+    <h3 style="text-align:center">账号登录</h3>
+    <p class="sub" style="text-align:center">选手使用本人学号登录；管理员使用管理员账号登录</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
         <label for="account">学号 / 管理员账号 <span class="req">*</span></label>
@@ -49,7 +50,9 @@
       <div class="field">
         <label for="password">登录密码 <span class="req">*</span></label>
         <input type="password" id="password" name="password" placeholder="请输入密码" required>
-        <div class="hint">登录后可在个人中心自行修改密码；忘记密码请联系竞赛管理员重置</div>
+      </div>
+      <div class="forgot-row">
+        <button type="button" class="link-btn" id="forgotBtn">忘记密码？</button>
       </div>
       <div class="field" id="captchaField">
         <label for="captcha">图形验证码 <span class="req">*</span></label>
@@ -64,6 +67,17 @@
       <button type="submit" class="btn block" id="loginBtn">登 录</button>
     </form>
     <div class="auth-switch">还没有账号？<a href="signup.html">立即注册参赛</a></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="forgotModal" hidden>
+  <div class="modal">
+    <div class="modal-head"><h3>找回密码</h3><button class="close" id="forgotClose">×</button></div>
+    <div class="modal-body">
+      <p style="color:var(--ink-2)">本系统暂不支持在线邮箱自助重置密码。如忘记密码，请联系竞赛组委会管理员核实身份后重置；重置完成后即可使用新密码登录。</p>
+      <p class="section-note" style="margin-top:10px">技术支持：云南工业信息职业学院青年成长社</p>
+    </div>
+    <div class="modal-foot"><button class="btn" id="forgotOk">我知道了</button></div>
   </div>
 </div>
 
