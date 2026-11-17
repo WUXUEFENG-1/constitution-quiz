@@ -3,6 +3,7 @@
   let questions = [], answers = {}, marks = {}, attemptId = null, remaining = 0;
   let tickTimer = null, submitting = false, storeKey = "";
   let switchCount = 0, current = 0, timeoutWarned = false, compSwitchLimit = null;
+  let lastCheatAt = 0;
 
   init();
 
@@ -15,7 +16,10 @@
 
     await API.loadSettings();
     document.getElementById("exitBtn").onclick = async () => {
-      if (await API.confirm("答题尚未提交，确定退出？已作答内容会保留，可从答题入口继续。")) location.href = "home.html";
+      if (await API.confirm("答题尚未提交，确定退出？已作答内容会保留，可从答题入口继续。")) {
+        exitFullscreen();
+        location.href = "home.html";
+      }
     };
     document.getElementById("topSubmit").onclick = requestSubmit;
     document.getElementById("submitBtn").onclick = requestSubmit;
@@ -49,6 +53,19 @@
     if (r) r.onclick = () => location.reload();
   }
 
+  function enterFullscreen() {
+    const el = document.documentElement;
+    if (!document.fullscreenElement && el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    }
+  }
+
+  function exitFullscreen() {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
   async function start() {
     document.getElementById("guardBox").innerHTML = `<div class="empty-state">正在获取试卷…</div>`;
     try {
@@ -64,6 +81,7 @@
 
       document.getElementById("guardBox").innerHTML = "";
       document.getElementById("examArea").hidden = false;
+      enterFullscreen();
       if (data.competition_title) document.getElementById("examTitle").textContent = data.competition_title;
       document.getElementById("examMeta").textContent += ` · 共 ${questions.length} 题 · ${data.duration_minutes} 分钟`;
 
@@ -236,23 +254,47 @@
     }, 1000);
   }
 
-  /* 防作弊：切屏 / 失焦 / 复制记录并提醒 */
+  /* 防作弊：切后台 / 失焦 / 退出全屏 / 缩放窗口 计入切屏次数；复制单独记录。
+     第 1、2 次警告，达到上限提示将强制收卷，超过上限自动交卷。 */
   function bindCheat() {
     const sec = API.getSetting("security", {});
+    const maxSwitch = Number(compSwitchLimit || sec.max_switch || 3);
+    const SWITCH_KINDS = new Set(["switch", "blur", "fullscreen", "resize"]);
+
     const report = (kind, detail) => {
       if (submitting) return;
-      const maxSwitch = Number(compSwitchLimit || sec.max_switch || 3);
+      const now = Date.now();
+      if (now - lastCheatAt < 1500) return; // 一次离开动作常并发触发多个事件，合并去抖
+      lastCheatAt = now;
+
+      if (!SWITCH_KINDS.has(kind)) {
+        // 复制等异常行为单独记录，不占用切屏次数
+        API.recordCheat(kind, detail);
+        return;
+      }
+
       switchCount++;
       API.recordCheat(kind, `${detail}（第 ${switchCount} 次）`);
+
       if (switchCount > maxSwitch) {
-        document.getElementById("cheatText").textContent = `检测到第 ${switchCount} 次异常切换，已标记为违规行为。`;
-      } else {
-        document.getElementById("cheatText").textContent = "检测到您离开答题页面，本次行为已被记录。";
+        API.toast("切屏次数已超限，系统强制收卷", "error", 3000);
+        confirmSubmit(true);
+        return;
       }
+
+      const text = switchCount >= maxSwitch
+        ? `你已切屏 ${switchCount} 次，系统将强制收卷。`
+        : `你已切屏 ${switchCount} 次，请尽快回到答题页面。`;
+      document.getElementById("cheatText").textContent = text;
       document.getElementById("cheatModal").hidden = false;
     };
+
     document.addEventListener("visibilitychange", () => { if (document.hidden) report("switch", "页面切到后台"); });
     window.addEventListener("blur", () => report("blur", "窗口失焦"));
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement && !submitting) report("fullscreen", "退出全屏");
+    });
+    window.addEventListener("resize", () => report("resize", "窗口尺寸被缩放"));
     document.addEventListener("copy", () => report("copy", "复制题目内容"));
   }
 
