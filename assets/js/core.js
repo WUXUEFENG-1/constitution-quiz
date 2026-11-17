@@ -5,7 +5,7 @@
   const cfg = global.APP_CONFIG || {};
   const configured =
     typeof cfg.SUPABASE_URL === "string" &&
-    /^https:/.test(cfg.SUPABASE_URL) &&
+    /^https:\/\//.test(cfg.SUPABASE_URL) &&
     !/YOUR-/.test(cfg.SUPABASE_URL) &&
     typeof cfg.SUPABASE_ANON_KEY === "string" &&
     cfg.SUPABASE_ANON_KEY.length > 40 &&
@@ -265,7 +265,7 @@
     },
 
     escapeHtml(str) {
-      return String(str == null ? "" : str).replace(/[&<>'"]/g, (c) => ({
+      return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       }[c]));
     },
@@ -298,7 +298,7 @@
         return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
       const csv = "\uFEFF" + rows.map((r) => r.map(esc).join(",")).join("\r\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = filename;
@@ -339,8 +339,13 @@
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
       if (rows.length < 2) return [];
-      const headers = rows[0].map((h) => String(h).trim());
-      return rows.slice(1).filter((r) => r.some((c) => String(c).trim() !== ""))
+      // 自动定位表头行：跳过顶部标题横幅/空行，找到含“题型/题干”的那一行
+      let headIdx = rows.findIndex((r) =>
+        r.some((c) => ["题型", "题目类型", "类型"].includes(String(c).trim())) &&
+        r.some((c) => ["题干", "题目", "题面", "题干内容"].includes(String(c).trim())));
+      if (headIdx < 0) headIdx = 0;
+      const headers = rows[headIdx].map((h) => String(h).trim());
+      return rows.slice(headIdx + 1).filter((r) => r.some((c) => String(c).trim() !== ""))
         .map((r) => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
     },
 
