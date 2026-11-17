@@ -3,7 +3,7 @@
   let questions = [], answers = {}, marks = {}, attemptId = null, remaining = 0;
   let tickTimer = null, submitting = false, storeKey = "";
   let switchCount = 0, current = 0, timeoutWarned = false, compSwitchLimit = null;
-  let lastCheatAt = 0;
+  let lastCheatAt = 0, cloudAnswers = {}, cloudSaveTimer = null;
 
   init();
 
@@ -76,6 +76,7 @@
       remaining = Number(data.remaining_seconds || 0);
       compSwitchLimit = data.switch_limit != null ? Number(data.switch_limit) : null;
       storeKey = "exam_answers_" + attemptId;
+      cloudAnswers = data.answers || {};
 
       if (!questions.length) throw new Error("试卷为空，请联系管理员");
 
@@ -88,6 +89,7 @@
       restoreAnswers();
       render();
       startTimer();
+      scheduleCloudSave(15000);
     } catch (err) {
       const msg = String(err.message || err);
       guardMessage(msg, /结束|时间/.test(msg));
@@ -105,9 +107,19 @@
         }
       }
     } catch (e) {}
+    // 云端草稿补齐本机缺失的作答（换设备 / 清缓存后续答）
+    Object.keys(cloudAnswers || {}).forEach((qid) => {
+      if (answers[qid] == null) answers[qid] = cloudAnswers[qid];
+    });
   }
   function persist() {
     try { localStorage.setItem(storeKey, JSON.stringify({ answers, marks })); } catch (e) {}
+    scheduleCloudSave(3000);
+  }
+  /* 云端草稿节流保存：delay 内合并为一次；startTimer 期间每 15 秒兜底同步 */
+  function scheduleCloudSave(delay) {
+    clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = setTimeout(() => { API.saveProgress(answers); }, delay || 3000);
   }
 
   function render() {
@@ -314,6 +326,9 @@
     document.getElementById("submitBtn").disabled = true;
     document.getElementById("submitBtn").textContent = "提交中…";
     clearInterval(tickTimer);
+    clearTimeout(cloudSaveTimer);
+
+    await API.saveProgress(answers);
 
     const payload = {};
     questions.forEach((q) => {
