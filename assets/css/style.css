@@ -457,13 +457,24 @@ table.data .muted { color: var(--ink-3); }
 .captcha-canvas { width: 118px; height: 42px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: #eef3fb; flex: none; }
 
 .cert-box {
-  max-width: 720px; margin: 0 auto; background: #fff; border: 10px solid var(--blue-100);
-  border-radius: 18px; padding: 36px 30px; text-align: center; box-shadow: var(--shadow);
+  position: relative; max-width: 720px; margin: 0 auto;
+  background-color: #fbf7ef;
+  background-image: repeating-linear-gradient(135deg, rgba(201,179,126,.07) 0 2px, transparent 2px 16px);
+  border: 1px solid #ddd2bd; border-radius: 6px;
+  padding: 50px 46px 40px; text-align: center; box-shadow: var(--shadow); overflow: hidden;
 }
-.cert-box .cert-org { color: var(--ink-3); font-size: 13.5px; }
-.cert-box .cert-title { font-size: 28px; font-weight: 800; color: var(--blue-900); letter-spacing: 4px; margin: 14px 0; }
-.cert-box .cert-name { font-size: 26px; font-weight: 700; margin: 10px 0; }
-.cert-box .cert-line { font-size: 14px; color: var(--ink-2); margin: 6px 0; }
+.cert-box::before { content: ""; position: absolute; inset: 16px; border: 1px dashed #cdb67f; border-radius: 3px; pointer-events: none; }
+.cert-box .corner { position: absolute; width: 96px; height: 96px; background: url("../cert-corner.svg") no-repeat center/contain; pointer-events: none; }
+.cert-box .corner.tl { top: 10px; left: 10px; }
+.cert-box .corner.tr { top: 10px; right: 10px; transform: scaleX(-1); }
+.cert-box .corner.bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+.cert-box .corner.br { bottom: 10px; right: 10px; transform: scale(-1, -1); }
+.cert-box .cert-title { font-size: 32px; font-weight: 800; color: #b39a63; letter-spacing: 8px; margin: 8px 0 28px; }
+.cert-box .cert-name { font-size: 26px; font-weight: 600; color: #2f2f2f; letter-spacing: 6px; }
+.cert-box .cert-name-line { width: 220px; height: 2px; background: #c9a95f; margin: 14px auto 24px; }
+.cert-box .cert-line { font-size: 15px; color: #3a3a3a; line-height: 1.9; max-width: 480px; margin: 0 auto; }
+.cert-box .cert-sign { margin-top: 36px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 14px; color: #3a3a3a; }
+.cert-box .cert-org { color: #3a3a3a; font-size: 14px; }
 .cert-box .cert-foot { margin-top: 22px; font-size: 12.5px; color: var(--ink-3); display: flex; justify-content: space-between; }
 
 .draft-board { position: fixed; right: 18px; bottom: 18px; z-index: 60; width: 260px; }
