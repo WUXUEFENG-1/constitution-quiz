@@ -117,7 +117,7 @@
       <div class="grid-2">
         <div class="field"><label>姓名 <span class="req">*</span></label><input id="fName"></div>
         <div class="field"><label>学号 <span class="req">*</span></label><input id="fNo"></div>
-        <div class="field"><label>系部</label><input id="fDept"></div>
+        <div class="field"><label>二级学院 / 系部</label><select id="fDept"></select></div>
         <div class="field"><label>班级</label><input id="fClass"></div>
         <div class="field"><label>手机号</label><input id="fPhone"></div>
         <div class="field"><label>角色</label><select id="fRole"><option value="contestant">选手</option><option value="questioner">出题员</option><option value="proctor">监考员</option><option value="statistician">统计员</option><option value="sub_admin">子管理员</option></select></div>
@@ -127,6 +127,7 @@
       Admin.btn("取消", "ghost", Admin.closeModal),
       Admin.btn("创建", "", createUser)
     ]);
+    document.getElementById("fDept").innerHTML = API.deptOptions("");
   }
 
   async function createUser() {

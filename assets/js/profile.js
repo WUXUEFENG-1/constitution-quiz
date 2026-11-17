@@ -32,7 +32,9 @@
   function fillInfo() {
     document.getElementById("pName").value = profile.full_name || "";
     document.getElementById("pNo").value = profile.student_no || "";
-    document.getElementById("pDept").value = profile.department || "";
+    const deptSel = document.getElementById("pDept");
+    deptSel.innerHTML = API.deptOptions(profile.department || "");
+    deptSel.value = profile.department || "";
     document.getElementById("pClass").value = profile.class_name || "";
     document.getElementById("pPhone").value = profile.phone || "";
   }
