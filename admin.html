@@ -6,7 +6,7 @@
 <title>管理后台 · <span data-brand="EVENT_SHORT"></span></title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="admin-loading">
 
 <header class="site-header">
   <div class="wrap">
@@ -28,6 +28,7 @@
 </header>
 
 <main class="wrap">
+  <div id="adminLoading" class="empty-state" style="padding:70px 20px">正在校验管理员身份…</div>
   <h2 class="page-title">竞赛管理后台</h2>
   <p class="page-sub" id="roleSub">数据看板 · 用户 · 题库 · 竞赛 · 监考 · 申诉 · 成绩 · 证书 · 公告 · 日志 · 设置</p>
 
@@ -51,7 +52,6 @@
     </aside>
     <div class="admin-main">
 
-  <!-- 数据看板 -->
   <section id="panel-overview">
     <div class="grid-4" id="statCards"></div>
     <div class="grid-2" style="margin-top:18px">
@@ -61,7 +61,6 @@
     <div class="card" style="margin-top:18px"><div class="card-title">各题正确率</div><div id="accBars"><div class="empty-state" style="padding:20px">暂无数据</div></div></div>
   </section>
 
-  <!-- 用户管理 -->
   <section id="panel-users" hidden>
     <div class="card">
       <div class="card-title">选手与账号 <span class="right" id="userCount"></span></div>
@@ -83,7 +82,6 @@
     </div>
   </section>
 
-  <!-- 题库管理 -->
   <section id="panel-questions" hidden>
     <div class="card">
       <div class="card-title">题库 <span class="right" id="qCount"></span></div>
@@ -109,7 +107,6 @@
     </div>
   </section>
 
-  <!-- 竞赛与试卷 -->
   <section id="panel-competitions" hidden>
     <div class="toolbar">
       <button class="btn sm" id="compAddBtn">创建竞赛</button>
@@ -118,7 +115,6 @@
     <div id="compList" style="margin-top:14px"></div>
   </section>
 
-  <!-- 监考监控 -->
   <section id="panel-monitor" hidden>
     <div class="card">
       <div class="card-title">实时答题状态 <span class="right" id="monCount"></span></div>
@@ -132,7 +128,6 @@
     </div>
   </section>
 
-  <!-- 防作弊记录 -->
   <section id="panel-cheat" hidden>
     <div class="card">
       <div class="card-title">异常行为记录 <span class="right" id="cheatCount"></span></div>
@@ -145,7 +140,6 @@
     </div>
   </section>
 
-  <!-- 申诉管理 -->
   <section id="panel-appeals" hidden>
     <div class="card">
       <div class="card-title">申诉审核 <span class="right" id="appealCount"></span></div>
@@ -158,7 +152,6 @@
     </div>
   </section>
 
-  <!-- 成绩管理 -->
   <section id="panel-scores" hidden>
     <div class="card">
       <div class="card-title">答题成绩 <span class="right" id="scoreCount"></span></div>
@@ -177,7 +170,6 @@
     </div>
   </section>
 
-  <!-- 证书管理 -->
   <section id="panel-certs" hidden>
     <div class="card">
       <div class="card-title">证书模板配置</div>
@@ -208,7 +200,6 @@
     </div>
   </section>
 
-  <!-- 公告管理 -->
   <section id="panel-news" hidden>
     <div class="toolbar">
       <button class="btn sm" id="newsAddBtn">发布公告</button>
@@ -216,7 +207,6 @@
     <div id="newsList" style="margin-top:14px"></div>
   </section>
 
-  <!-- 系统日志 -->
   <section id="panel-logs" hidden>
     <div class="card">
       <div class="card-title">登录与操作日志</div>
@@ -229,7 +219,6 @@
     </div>
   </section>
 
-  <!-- 系统设置 -->
   <section id="panel-settings" hidden>
     <div class="card">
       <div class="card-title">页面与安全配置</div>
@@ -266,7 +255,6 @@
   <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
 </footer>
 
-<!-- 通用模态框 -->
 <div class="modal-mask" id="modalMask" hidden>
   <div class="modal" id="modalBox">
     <div class="modal-head"><h3 id="modalTitle">标题</h3><button class="close" id="modalClose">×</button></div>
