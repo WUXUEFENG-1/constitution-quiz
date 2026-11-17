@@ -10,9 +10,12 @@
 
 <div class="exam-topbar">
   <div class="wrap">
-    <div>
-      <div style="font-weight:700;color:var(--blue-900);font-size:15px" id="examTitle" data-brand="EVENT_NAME"></div>
-      <div style="font-size:12.5px;color:var(--ink-3)" id="examMeta">在线答题</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="brand-mark" style="width:38px;height:38px;font-size:17px">宪</span>
+      <div>
+        <div style="font-weight:700;color:var(--blue-900);font-size:15px" id="examTitle" data-brand="EVENT_NAME"></div>
+        <div style="font-size:12.5px;color:var(--ink-3)" id="examMeta">在线答题</div>
+      </div>
     </div>
     <div class="timer" id="timer">--:--</div>
     <button class="btn" id="topSubmit">交 卷</button>
@@ -60,12 +63,6 @@
     </div>
   </div>
 </main>
-
-<footer class="site-footer">
-  <span class="foot-main">主办单位：<span data-brand="HOST_UNIT"></span></span>
-  <span class="foot-main">承办单位：<span data-brand="ORGANIZER_UNIT"></span></span>
-  <span class="foot-sub">技术支持：<span data-brand="SUPPORT_UNIT"></span></span>
-</footer>
 
 <div class="modal-mask" id="cheatModal" hidden>
   <div class="modal cheat-modal">
