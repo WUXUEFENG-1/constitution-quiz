@@ -98,7 +98,7 @@
   }
 
   async function doCancel() {
-    if (!confirm("确认取消报名？取消后可在开放时间内重新报名。")) return;
+    if (!await API.confirm("确认取消报名？取消后可在开放时间内重新报名。")) return;
     const user = await API.currentUser();
     const { error } = await API.sb.from("registrations").delete().eq("user_id", user.id);
     if (error) return API.toast("取消报名失败：" + error.message, "error");
