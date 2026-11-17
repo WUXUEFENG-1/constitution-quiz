@@ -23,7 +23,7 @@
       return `<tr>
         <td>${API.escapeHtml(p.full_name || "—")}<div class="muted mono" style="font-size:12px">${API.escapeHtml(p.student_no || "")}</div></td>
         <td>${a.kind === "score" ? "分数异议" : "题目异议"}</td>
-        <td style="max-width:320px">${API.escapeHtml(a.content)}</td>
+        <td style="max-width:320px">${API.escapeHtml(a.content)}${a.screenshot ? `<div><img class="appeal-thumb" src="${a.screenshot}" alt="截图"></div>` : ""}</td>
         <td><span class="badge ${c}">${t}</span></td>
         <td style="max-width:260px">${API.escapeHtml(a.reply || "—")}</td>
         <td>${API.fmtTime(a.created_at)}</td>

@@ -26,6 +26,14 @@
     }
 
     document.getElementById("loginForm").onsubmit = onSubmit;
+
+    const forgot = document.getElementById("forgotModal");
+    const openForgot = () => { forgot.hidden = false; };
+    const closeForgot = () => { forgot.hidden = true; };
+    document.getElementById("forgotBtn").onclick = openForgot;
+    document.getElementById("forgotClose").onclick = closeForgot;
+    document.getElementById("forgotOk").onclick = closeForgot;
+    forgot.onclick = (e) => { if (e.target.id === "forgotModal") closeForgot(); };
   }
 
   async function onSubmit(e) {

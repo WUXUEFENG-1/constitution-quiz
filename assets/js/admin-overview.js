@@ -12,26 +12,27 @@
     const atts = (attRes.data || []).filter((a) => a.status === "submitted");
     const qs = qRes.data || [];
 
+    const online = (attRes.data || []).filter((a) => a.status === "in_progress").length;
     const avg = atts.length ? (atts.reduce((s, a) => s + Number(a.score || 0), 0) / atts.length).toFixed(1) : "0";
+    const totalCorrect = atts.reduce((s, a) => s + Number(a.correct_count || 0), 0);
+    const totalQ = atts.reduce((s, a) => s + Number(a.question_count || 0), 0);
+    const accuracy = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
     const cards = [
-      { label: "报名人数", value: regs.length, sub: "已提交报名" },
-      { label: "已交卷", value: atts.length, sub: "正式答卷" },
+      { label: "参赛总人数", value: regs.length, sub: "已提交报名" },
+      { label: "在线人数", value: online, sub: "正在答题" },
       { label: "平均分", value: avg, sub: atts.length ? "分" : "暂无成绩" },
-      { label: "题库题目", value: qs.length, sub: `启用 ${qs.filter((q) => q.is_active).length} 题` }
+      { label: "答题正确率", value: accuracy + "%", sub: `已交卷 ${atts.length} 份` }
     ];
     document.getElementById("statCards").innerHTML = cards.map((c) => `
       <div class="stat-card"><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-sub">${c.sub}</div></div>`).join("");
 
-    // 系部分布
     const deptMap = {};
     regs.forEach((r) => { const k = r.department || "未填写"; deptMap[k] = (deptMap[k] || 0) + 1; });
     renderBars("deptBars", deptMap);
 
-    // 状态分布
     const stateMap = { "已交卷": atts.length, "答题中": (attRes.data || []).filter((a) => a.status === "in_progress").length, "未参赛": Math.max(0, regs.length - atts.length) };
     renderBars("stateBars", stateMap);
 
-    // 各题正确率
     const stat = {};
     atts.forEach((a) => (a.detail || []).forEach((d) => {
       if (!stat[d.id]) stat[d.id] = { total: 0, correct: 0 };

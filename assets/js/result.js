@@ -51,7 +51,7 @@
       <div class="result-hero">
         <div style="font-size:13.5px;opacity:.85">本次答题成绩</div>
         <div class="score">${r.score}<small> / ${r.total_score} 分</small></div>
-        <div class="meta">正确 ${r.correct_count} / ${r.question_count} 题 · 用时 ${Math.floor((r.duration_seconds || 0) / 60)} 分 ${(r.duration_seconds || 0) % 60} 秒 · ${API.fmtTime(r.submitted_at)}</div>
+        <div class="meta">正确 ${r.correct_count} / ${r.question_count} 题 · 用时 ${Math.floor((r.duration_seconds || 0) / 60)} 分 ${(r.duration_seconds || 0) % 60} 秒${r.rank_no ? ` · 排名第 ${r.rank_no} 名` : ""} · ${API.fmtTime(r.submitted_at)}</div>
         <div class="verdict">正确率 ${pct}%　${pct >= 60 ? "成绩已提交，等待组委会公布评奖结果" : "建议继续练习巩固"}</div>
         <div style="margin-top:18px" class="btn-row">
           <a class="btn ghost" href="home.html" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.5)">返回选手中心</a>
