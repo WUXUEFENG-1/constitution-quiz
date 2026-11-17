@@ -151,7 +151,10 @@ begin
         v_earned := 1; v_is_correct := false;  -- 部分选对：得 1 分
       end if;
     elsif v_qtype = 'fill' then
-      v_is_correct := v_corr_arr = v_user_arr;
+      -- 填空：每个空命中任一可接受变体即判对（如 12月4日 / 12.4 均可）
+      v_is_correct := cardinality(v_user_arr) > 0
+        and not exists (select 1 from unnest(v_user_arr) u
+                        where u not in (select x from unnest(v_corr_arr) x));
       v_earned := case when v_is_correct then v_qscore else 0 end;
     else
       v_is_correct :=
