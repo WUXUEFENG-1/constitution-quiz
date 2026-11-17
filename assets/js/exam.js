@@ -110,7 +110,8 @@
 
   function bodyHtml(q) {
     if (q.qtype === "fill") {
-      const n = Math.max(1, (q.options && q.options.length) || 1);
+      const blanks = (q.content.match(/_{2,}/g) || []).length;
+      const n = Math.max(1, blanks || (q.options && q.options.length) || 1);
       return `<div class="fill-input">${Array.from({ length: n })
         .map((_, k) => `<input type="text" data-fill="${k}" placeholder="第 ${k + 1} 空">`).join("")}</div>`;
     }
