@@ -83,7 +83,7 @@
 
   async function bulkDelete() {
     if (!selected.size) return API.toast("请先勾选要删除的题目", "error");
-    if (!confirm(`确认删除所选 ${selected.size} 道题目？`)) return;
+    if (!await API.confirm(`确认删除所选 ${selected.size} 道题目？`)) return;
     const { error } = await API.sb.from("questions").delete().in("id", [...selected]);
     if (error) return API.toast("批量删除失败：" + error.message, "error");
     API.toast(`已删除 ${selected.size} 题`, "success");
@@ -105,7 +105,7 @@
     load();
   }
   async function del(q) {
-    if (!confirm("确认删除该题目？")) return;
+    if (!await API.confirm("确认删除该题目？")) return;
     await API.sb.from("questions").delete().eq("id", q.id);
     API.toast("已删除", "success"); load();
   }
