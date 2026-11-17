@@ -5,7 +5,7 @@
   const type = ["single", "multiple", "judge", "fill"].includes(params.get("type") || "") ? params.get("type") : "";
 
   let questions = [];
-  let answers = {};
+  let answers = {};      // { qid: string | string[] }
   let graded = false;
 
   init();
@@ -31,7 +31,10 @@
     const list = document.getElementById("qList");
     list.innerHTML = `<div class="empty-state">正在抽题…</div>`;
     try {
-      const { data, error } = await API.sb.rpc("get_practice_questions", { p_count: count, p_type: type });
+      const { data, error } = await API.sb.rpc("get_practice_questions", {
+        p_count: count,
+        p_type: type
+      });
       if (error) throw error;
       questions = Array.isArray(data) ? data : [];
     } catch (err) {
