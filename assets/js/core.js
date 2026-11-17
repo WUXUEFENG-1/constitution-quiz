@@ -270,6 +270,26 @@
       }[c]));
     },
 
+    /* 转义后保留换行：规则等多行文本发布后按原分行展示 */
+    renderMultiline(text) {
+      return API.escapeHtml(text).replace(/\r\n|\r|\n/g, "<br>");
+    },
+
+    /* 规则专用：先保留已有换行，再把连写的“编号条目（1. 2. 3.…）”拆成独立一行 */
+    renderRules(text) {
+      const raw = String(text == null ? "" : text);
+      const parts = raw.split(/\r\n|\r|\n/);
+      const out = [];
+      parts.forEach((part) => {
+        const segs = part.split(/(?=(?:^|\s)\d{1,2}\.\s)/);
+        segs.forEach((seg) => {
+          const t = API.escapeHtml(seg.trim());
+          if (t) out.push(t);
+        });
+      });
+      return out.join("<br>");
+    },
+
     deptOptions(selected) {
       const list = Array.isArray(cfg.DEPARTMENTS) && cfg.DEPARTMENTS.length
         ? cfg.DEPARTMENTS : [];
