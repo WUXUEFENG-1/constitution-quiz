@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c2a4d"/>
+      <stop offset="1" stop-color="#1d5386"/>
+    </linearGradient>
+    <linearGradient id="rib1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c8102e"/>
+      <stop offset="1" stop-color="#a50d26"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g1)"/>
+  <circle cx="1040" cy="110" r="190" fill="#ffffff" opacity="0.05"/>
+  <circle cx="100" cy="600" r="150" fill="#c8102e" opacity="0.14"/>
+
+  <g transform="translate(858,196)">
+    <path d="M70 0 L78 26 L106 26 L84 43 L92 70 L70 54 L48 70 L56 43 L34 26 L62 26 Z" fill="#d9a441"/>
+    <g fill="none" stroke="#d9a441" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 60 Q80 18 150 60" />
+      <line x1="80" y1="52" x2="80" y2="180"/>
+      <path d="M40 200 L120 200 M60 180 L100 180"/>
+      <line x1="34" y1="60" x2="20" y2="108"/>
+      <line x1="34" y1="60" x2="48" y2="108"/>
+      <path d="M8 108 Q34 126 60 108" />
+      <line x1="126" y1="60" x2="112" y2="108"/>
+      <line x1="126" y1="60" x2="140" y2="108"/>
+      <path d="M100 108 Q126 126 152 108" />
+    </g>
+  </g>
+
+  <path d="M0 560 L1200 516 L1200 675 L0 675 Z" fill="url(#rib1)" opacity="0.92"/>
+
+  <g font-family="'PingFang SC','Microsoft YaHei','Source Han Sans SC',sans-serif">
+    <rect x="90" y="148" rx="28" width="226" height="52" fill="#c8102e"/>
+    <text x="203" y="184" fill="#ffffff" font-size="26" font-weight="700" text-anchor="middle">12·4 国家宪法日</text>
+    <text x="90" y="300" fill="#ffffff" font-size="56" font-weight="800" letter-spacing="6">尊崇宪法</text>
+    <text x="90" y="382" fill="#ffffff" font-size="56" font-weight="800" letter-spacing="4">学法守法 知法用法</text>
+    <text x="92" y="452" fill="#dbe7f3" font-size="25">弘扬宪法精神 · 维护宪法权威 · 保障公民权利</text>
+  </g>
+</svg>

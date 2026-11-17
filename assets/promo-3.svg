@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#143d68"/>
+      <stop offset="1" stop-color="#0c2a4d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g3)"/>
+  <circle cx="1030" cy="560" r="180" fill="#c8102e" opacity="0.12"/>
+  <circle cx="120" cy="130" r="150" fill="#ffffff" opacity="0.05"/>
+
+  <g transform="translate(900,300)">
+    <circle r="120" fill="none" stroke="#d9a441" stroke-width="3" opacity="0.5"/>
+    <path d="M0 -70 L20 -22 L72 -20 L32 12 L45 62 L0 34 L-45 62 L-32 12 L-72 -20 L-20 -22 Z" fill="#d9a441"/>
+    <g fill="#d9a441" opacity="0.85">
+      <ellipse cx="-128" cy="20" rx="10" ry="22" transform="rotate(-35 -128 20)"/>
+      <ellipse cx="-112" cy="-30" rx="10" ry="22" transform="rotate(-12 -112 -30)"/>
+      <ellipse cx="-82" cy="-70" rx="10" ry="22" transform="rotate(12 -82 -70)"/>
+      <ellipse cx="128" cy="20" rx="10" ry="22" transform="rotate(35 128 20)"/>
+      <ellipse cx="112" cy="-30" rx="10" ry="22" transform="rotate(12 112 -30)"/>
+      <ellipse cx="82" cy="-70" rx="10" ry="22" transform="rotate(-12 82 -70)"/>
+    </g>
+  </g>
+
+  <g font-family="'PingFang SC','Microsoft YaHei','Source Han Sans SC',sans-serif">
+    <rect x="90" y="148" rx="28" width="330" height="52" fill="#c8102e"/>
+    <text x="255" y="184" fill="#ffffff" font-size="24" font-weight="700" text-anchor="middle">第二届“学宪法 讲宪法”竞赛</text>
+    <text x="90" y="300" fill="#ffffff" font-size="56" font-weight="800" letter-spacing="6">学宪法 讲宪法</text>
+    <text x="90" y="382" fill="#ffffff" font-size="56" font-weight="800" letter-spacing="6">争做守法用法青年</text>
+    <text x="92" y="452" fill="#dbe7f3" font-size="25">尊法学法 · 守法用法 · 让宪法精神陪伴青春成长</text>
+  </g>
+</svg>
