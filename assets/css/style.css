@@ -63,8 +63,9 @@ a:hover { text-decoration: underline; }
   padding: 16px 0;
   border-top: 4px solid var(--red);
   box-shadow: 0 4px 18px rgba(12, 42, 77, 0.20);
-  position: relative;
-  z-index: 5;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 .site-header .wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
@@ -206,6 +207,15 @@ table.data th { background: var(--blue-050); color: var(--blue-900); font-weight
 table.data tr:last-child td { border-bottom: none; }
 table.data td.mono { font-variant-numeric: tabular-nums; }
 table.data .muted { color: var(--ink-3); }
+
+/* 选手管理表格：列宽放宽，状态/时间/操作不换行 */
+#usersTable { min-width: 980px; }
+#usersTable td { vertical-align: middle; }
+#usersTable th:nth-child(3), #usersTable td:nth-child(3) { min-width: 120px; }
+#usersTable th:nth-child(4), #usersTable td:nth-child(4) { min-width: 180px; }
+#usersTable th:nth-child(6), #usersTable td:nth-child(6) { white-space: nowrap; width: 88px; }
+#usersTable th:nth-child(7), #usersTable td:nth-child(7) { white-space: nowrap; width: 152px; }
+#usersTable td:nth-child(8) { white-space: nowrap; }
 
 .stat {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
@@ -561,7 +571,7 @@ table.data td.op, .op { white-space: nowrap; }
 .appeal-thumb { max-width: 120px; border: 1px solid var(--line); border-radius: 8px; margin-top: 6px; }
 
 .admin-shell { display: grid; grid-template-columns: 232px minmax(0,1fr); gap: 22px; align-items: start; }
-.admin-side { background: var(--navy-900); border-radius: var(--radius); padding: 14px 10px; position: sticky; top: 18px; }
+.admin-side { background: var(--navy-900); border-radius: var(--radius); padding: 14px 10px; position: sticky; top: 96px; }
 .admin-side .side-title { color: rgba(255,255,255,.6); font-size: 12px; letter-spacing: 1px; padding: 6px 12px 10px; }
 .side-item {
   display: flex; align-items: center; gap: 10px; width: 100%;
