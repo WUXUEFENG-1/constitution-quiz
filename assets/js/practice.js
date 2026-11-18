@@ -10,12 +10,14 @@
   let questions = [];
   let answers = {};
   let graded = false;
+  let profile = null;
 
   init();
 
   async function init() {
     try {
-      const { profile } = await API.guard(null);
+      const ctx = await API.guard(null);
+      profile = ctx.profile;
       document.getElementById("userChip").textContent = profile.full_name || "选手";
     } catch (e) { return; }
 
@@ -241,5 +243,23 @@
     try { hist = JSON.parse(localStorage.getItem("xfjs_practice_history") || "[]"); } catch (e) {}
     hist.unshift(row);
     localStorage.setItem("xfjs_practice_history", JSON.stringify(hist.slice(0, 50)));
+
+    // 同步落库，供后台“练习排行”统计（仅练习，不计入正式竞赛成绩）
+    if (!profile || !profile.id) return;
+    const rate = row.question_count ? Math.round((row.correct_count / row.question_count) * 10000) / 100 : 0;
+    API.sb.from("practice_records").insert({
+      user_id: profile.id,
+      full_name: profile.full_name || "",
+      student_no: profile.student_no || "",
+      department: profile.department || "",
+      class_name: profile.class_name || "",
+      score: row.score,
+      total_score: row.total_score,
+      correct_count: row.correct_count,
+      question_count: row.question_count,
+      correct_rate: rate,
+      duration_seconds: row.duration_seconds || 0,
+      created_at: row.submitted_at
+    }).then(({ error }) => { if (error) console.warn("练习记录保存失败：", error.message); });
   }
 })();
