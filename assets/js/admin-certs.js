@@ -7,9 +7,11 @@
   async function load() {
     await loadTemplate();
     const { data } = await API.sb.from("certificates")
-      .select("*,profiles(full_name,student_no)")
+      .select("*")
       .order("issued_at", { ascending: false });
     certs = data || [];
+    const pMap = await API.profileMap(certs.map((c) => c.user_id));
+    certs.forEach((c) => { c.profiles = pMap[c.user_id] || {}; });
     document.getElementById("certSaveTpl").onclick = saveTemplate;
     document.getElementById("certIssueBtn").onclick = batchIssue;
     document.getElementById("certRefresh").onclick = load;
