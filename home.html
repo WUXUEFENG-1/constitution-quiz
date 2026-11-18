@@ -33,33 +33,41 @@
 </aside>
 
 <main class="wrap player-main">
-  <h2 class="page-title">选手中心</h2>
-  <p class="page-sub" id="welcomeLine">欢迎你，请完成报名后在开放时间内参赛。</p>
+  <div class="pg-head">
+    <h2 class="page-title">选手中心</h2>
+    <p class="page-sub" id="welcomeLine">欢迎你，请完成报名后在开放时间内参赛。</p>
+  </div>
 
   <div class="carousel" id="carousel" hidden>
     <div class="carousel-track" id="carouselTrack"></div>
     <div class="carousel-dots" id="carouselDots"></div>
   </div>
 
-  <section class="grid-2" style="margin-bottom:18px">
-    <div class="card" style="margin:0">
-      <div class="card-title">参赛信息 <span class="right" id="regStatus"></span></div>
-      <div class="kv" id="profileBox"></div>
-      <div class="btn-row" style="margin-top:14px" id="regAction"></div>
-    </div>
-    <div class="card" style="margin:0">
-      <div class="card-title">通知公告</div>
-      <div id="annList"><div class="empty-state" style="padding:20px">暂无公告</div></div>
+  <section class="card" style="margin:0 0 16px">
+    <div class="card-title">参赛信息 <span class="right" id="regStatus"></span></div>
+    <div class="info-list" id="profileBox"></div>
+    <div class="btn-row" style="margin-top:14px" id="regAction"></div>
+  </section>
+
+  <section class="card" style="margin:0 0 16px">
+    <div class="card-title">通知公告 <span class="right" id="annCount"></span></div>
+    <div class="notice-list" id="annList">
+      <div class="notice-empty">
+        <div class="ne-ico">✉</div>
+        <div class="ne-t">暂无公告</div>
+        <p>赛前通知、竞赛规则与成绩公告将在此发布。</p>
+      </div>
     </div>
   </section>
 
-  <section class="hub-grid" style="margin-bottom:18px" id="hubGrid"></section>
+  <section style="margin-bottom:16px">
+    <h3 class="quick-title">快捷入口</h3>
+    <div class="quick-grid" id="hubGrid"></div>
+  </section>
 
-  <section>
-    <div class="card" style="margin:0">
-      <div class="card-title">赛事列表</div>
-      <div id="compList"><div class="empty-state" style="padding:20px">暂无赛事</div></div>
-    </div>
+  <section class="card" style="margin:0">
+    <div class="card-title">赛事列表</div>
+    <div id="compList"><div class="empty-state" style="padding:20px">暂无赛事</div></div>
   </section>
 </main>
 
