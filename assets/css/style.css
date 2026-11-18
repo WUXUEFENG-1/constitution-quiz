@@ -323,7 +323,12 @@ table.data .muted { color: var(--ink-3); }
 }
 .fill-input input:focus { outline: none; border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(43,134,212,.14); }
 
-.sheet { position: sticky; top: 84px; }
+.sheet { position: static; }
+.exam-layout > aside {
+  position: sticky; top: 84px; align-self: start;
+  max-height: calc(100vh - 100px); overflow-y: auto;
+}
+#examMain .exam-layout > aside { top: 70px; }
 .sheet-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .sheet-cell {
   height: 32px; border: 1px solid var(--line); border-radius: 6px;
@@ -339,6 +344,7 @@ table.data .muted { color: var(--ink-3); }
 @media (max-width: 900px) {
   .exam-layout { grid-template-columns: 1fr; }
   .sheet { position: static; }
+  .exam-layout > aside { position: static; max-height: none; overflow: visible; }
 }
 .exam-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
 .exam-actions .progress-text { font-size: 13.5px; color: var(--ink-2); }
