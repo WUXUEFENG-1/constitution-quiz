@@ -46,6 +46,7 @@
       <button class="side-item" data-tab="scores" data-perm="statistician"><span class="ico">▥</span>成绩管理</button>
       <button class="side-item" data-tab="rank" data-perm="all"><span class="ico">☰</span>排行榜</button>
       <button class="side-item" data-tab="classrank" data-perm="all"><span class="ico">▥</span>班级排行</button>
+      <button class="side-item" data-tab="practice" data-perm="all"><span class="ico">✎</span>练习排行</button>
       <button class="side-item" data-tab="appeals" data-perm="admin"><span class="ico">✉</span>申诉审核</button>
       <button class="side-item" data-tab="certs" data-perm="admin"><span class="ico">✦</span>证书管理</button>
       <button class="side-item" data-tab="news" data-perm="admin"><span class="ico">◪</span>公告管理</button>
@@ -230,6 +231,25 @@
     </div>
   </section>
 
+  <!-- 在线练习排行 -->
+  <section id="panel-practice" hidden>
+    <div class="card">
+      <div class="card-title">在线练习排行 <span class="right" id="practiceCount"></span></div>
+      <div class="toolbar">
+        <input type="text" id="practiceSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
+        <button class="btn soft sm" id="practiceRefresh">刷新</button>
+        <button class="btn ghost sm" id="practiceExport">导出练习排行（CSV）</button>
+        <span class="section-note">按历史最高分排序，同分按最近练习时间先后；仅统计在线练习，不计入正式竞赛成绩。</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>排名</th><th>姓名</th><th>学号</th><th>系部</th><th>班级</th><th>练习次数</th><th>最高分</th><th>最近得分</th><th>最近正确率</th><th>最近练习时间</th></tr></thead>
+          <tbody id="practiceBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- 证书管理 -->
   <section id="panel-certs" hidden>
     <div class="card">
@@ -353,6 +373,7 @@
 <script src="assets/js/admin-rank.js"></script>
 <script src="assets/js/class-roster.js"></script>
 <script src="assets/js/admin-class-rank.js"></script>
+<script src="assets/js/admin-practice.js"></script>
 <script src="assets/js/admin-certs.js"></script>
 <script src="assets/js/admin-news.js"></script>
 <script src="assets/js/admin-settings.js"></script>
