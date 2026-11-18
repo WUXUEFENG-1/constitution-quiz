@@ -6,9 +6,11 @@
 
   async function load() {
     const { data } = await API.sb.from("attempts")
-      .select("*,profiles(full_name,student_no,department,class_name)")
+      .select("*")
       .order("score", { ascending: false, nullsFirst: false });
     all = data || [];
+    const pMap = await API.profileMap(all.map((a) => a.user_id));
+    all.forEach((a) => { a.profiles = pMap[a.user_id] || {}; });
     document.getElementById("scoreRefresh").onclick = load;
     document.getElementById("scoreExport").onclick = exportCSV;
     ["scoreSearch", "scoreStatus"].forEach((id) => {
