@@ -13,7 +13,8 @@
       API.sb.from("attempts").select("*").order("started_at", { ascending: false }),
       API.sb.from("cheat_events").select("user_id,kind,count")
     ]);
-    const rows = atts || [];
+    // 过滤赛事被删后遗留的孤儿答卷（competition_id 为空或赛事已不存在）
+    const rows = (atts || []).filter((a) => a.competition_id);
     const pMap = await API.profileMap(rows.map((a) => a.user_id));
     rows.forEach((a) => { a.profiles = pMap[a.user_id] || {}; });
     const switchMap = {};
