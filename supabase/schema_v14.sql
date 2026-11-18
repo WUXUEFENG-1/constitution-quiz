@@ -59,7 +59,7 @@ begin
   if not public.is_admin() then
     raise exception '无权限操作';
   end if;
-  delete from public.audit_logs;
+  delete from public.audit_logs where id is not null;
   get diagnostics v_n = row_count;
   perform public.log_action('清空日志', '共清理 ' || v_n || ' 条');
   return v_n;
