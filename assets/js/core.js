@@ -148,6 +148,17 @@
     async recordCheat(kind, detail) {
       try { await sb.rpc("record_cheat", { p_kind: kind, p_detail: detail || "" }); } catch (e) {}
     },
+    /* 批量拉取 profiles 并按 id 建映射；后台各列表用，避免依赖 PostgREST 内嵌外键关联 */
+    async profileMap(ids) {
+      const map = {};
+      if (!sb) return map;
+      const list = [...new Set((ids || []).filter(Boolean))];
+      let q = sb.from("profiles").select("id,full_name,student_no,department,class_name,role,status");
+      if (list.length) q = q.in("id", list);
+      const { data } = await q;
+      (data || []).forEach((p) => { map[p.id] = p; });
+      return map;
+    },
     /* 答题草稿云端暂存（不判分、不改状态），供换设备 / 清后续答 */
     async saveProgress(answers) {
       if (!sb) return;
