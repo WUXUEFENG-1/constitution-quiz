@@ -13,13 +13,16 @@
       API.sb.from("attempts").select("*").order("started_at", { ascending: false }),
       API.sb.from("cheat_events").select("user_id,kind,count")
     ]);
-    // 过滤赛事被删后遗留的孤儿答卷（competition_id 为空或赛事已不存在）
-    const rows = (atts || []).filter((a) => a.competition_id);
-    const pMap = await API.profileMap(rows.map((a) => a.user_id));
-    rows.forEach((a) => { a.profiles = pMap[a.user_id] || {}; });
+    // 过滤孤儿答卷（赛事编号为空）与工作人员账号，只统计参赛选手
+    const allAtts = atts || [];
+    const attMap = await API.profileMap(allAtts.map((a) => a.user_id));
+    allAtts.forEach((a) => { a.profiles = attMap[a.user_id] || {}; });
+    const rows = allAtts.filter((a) => a.competition_id && !API.isStaff((a.profiles || {}).role));
+    const cheatMap = await API.profileMap((cheats || []).map((c) => c.user_id));
     const switchMap = {};
     (cheats || []).forEach((c) => {
       if (!c.user_id) return;
+      if (API.isStaff((cheatMap[c.user_id] || {}).role)) return;
       if (!switchMap[c.user_id]) switchMap[c.user_id] = 0;
       if (["switch", "blur", "fullscreen", "resize", "focus_lost"].includes(c.kind)) switchMap[c.user_id] += (c.count || 1);
     });
@@ -57,9 +60,11 @@
     const { data } = await API.sb.from("cheat_events")
       .select("*")
       .order("created_at", { ascending: false }).limit(200);
-    const rows = data || [];
-    const pMap = await API.profileMap(rows.map((c) => c.user_id));
-    rows.forEach((c) => { c.profiles = pMap[c.user_id] || {}; });
+    const all = data || [];
+    const pMap = await API.profileMap(all.map((c) => c.user_id));
+    all.forEach((c) => { c.profiles = pMap[c.user_id] || {}; });
+    // 工作人员账号不计入异常记录，只展示参赛选手
+    const rows = all.filter((c) => !API.isStaff((c.profiles || {}).role));
     document.getElementById("cheatCount").textContent = `共 ${rows.length} 条记录`;
     const body = document.getElementById("cheatBody");
     if (!rows.length) { body.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center">暂无异常行为记录</td></tr>'; return; }
@@ -71,7 +76,10 @@
         <td>${API.escapeHtml(c.detail)}</td>
         <td>${c.count}</td>
         <td>${API.fmtTime(c.created_at)}</td>
-        <td><button class="link-btn danger" data-ban="${c.user_id}">封禁账号</button></td>
+        <td style="white-space:nowrap">
+          <button class="link-btn danger" data-ban="${c.user_id}">封禁账号</button>
+          <button class="link-btn" data-del="${c.id}">删除</button>
+        </td>
       </tr>`;
     }).join("");
     body.querySelectorAll("[data-ban]").forEach((b) => b.onclick = async () => {
@@ -79,6 +87,12 @@
       const { error } = await API.sb.rpc("admin_set_status", { p_id: b.dataset.ban, p_status: "banned", p_reason: "答题异常行为" });
       if (error) return API.toast("操作失败：" + error.message, "error");
       API.toast("已封禁", "success"); loadCheat();
+    });
+    body.querySelectorAll("[data-del]").forEach((b) => b.onclick = async () => {
+      if (!await API.confirm("确认删除这条异常行为记录？")) return;
+      const { error } = await API.sb.rpc("admin_delete_cheat", { p_id: b.dataset.del });
+      if (error) return API.toast("删除失败：" + error.message, "error");
+      API.toast("已删除", "success"); loadCheat();
     });
   }
 })();
