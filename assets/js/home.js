@@ -90,13 +90,13 @@
 
   function renderProfile() {
     document.getElementById("welcomeLine").textContent =
-      `欢迎你，${profile.full_name || "同学"}。可先在线练习；完成报名后在开放时间内参赛。`;
+      `欢迎你，${profile.full_name || "同学"}。完成报名后即可在开放时间内参赛。`;
     const items = [
       ["姓名", profile.full_name], ["学号", profile.student_no],
       ["系部", profile.department], ["班级", profile.class_name], ["手机号", profile.phone || "—"]
     ];
     document.getElementById("profileBox").innerHTML = items.map(([k, v]) =>
-      `<div class="item"><div class="k">${k}</div><div class="v">${API.escapeHtml(v || "—")}</div></div>`).join("");
+      `<div class="ir"><span class="k">${k}</span><span class="v">${API.escapeHtml(v || "—")}</span></div>`).join("");
   }
 
   function renderReg() {
@@ -126,7 +126,7 @@
 
   async function doRegister() {
     const btn = document.getElementById("regBtn");
-    btn.disabled = true; btn.textContent = "提交中…";
+    if (btn) { btn.disabled = true; btn.textContent = "提交中…"; }
     try {
       const user = await API.currentUser();
       const { error } = await API.sb.from("registrations").insert({
@@ -140,21 +140,21 @@
       renderCompetitions();
     } catch (err) {
       API.toast("报名失败：" + (err.message || err), "error", 3600);
-      btn.disabled = false; btn.textContent = "立即报名参赛";
+      if (btn) { btn.disabled = false; btn.textContent = "立即报名参赛"; }
     }
   }
 
   function renderHub() {
     const cards = [
-      { icon: "✍️", title: "在线练习", desc: "随机抽题，即时查看答案与解析", href: "practice.html" },
-      { icon: "⏱️", title: "答题入口", desc: "限时答题，提交后自动判分出分", href: "exam.html" },
+      { icon: "✎", title: "在线练习", desc: "随机抽题，即时查看答案与解析", href: "practice.html" },
+      { icon: "⏱", title: "答题入口", desc: "限时答题，提交后自动判分", href: "exam.html" },
       { icon: "🏆", title: "成绩与证书", desc: "历史成绩、错题回看、证书查看", href: "profile.html?tab=certs" },
-      { icon: "📮", title: "提交申诉", desc: "题目或分数异议在线提交", href: "appeals.html" },
-      { icon: "📝", title: "线上草稿板", desc: "随手记录，本地保存不丢失", href: "javascript:;", board: true }
+      { icon: "✉", title: "提交申诉", desc: "题目或分数异议在线提交", href: "appeals.html" },
+      { icon: "📝", title: "草稿板", desc: "随手记录，本地保存不丢失", href: "javascript:;", board: true }
     ];
-    document.getElementById("hubGrid").innerHTML = cards.map((c, i) => `
-      <a class="hub-card" href="${c.href}" data-board="${c.board ? 1 : 0}">
-        <div class="ico">${c.icon}</div>
+    document.getElementById("hubGrid").innerHTML = cards.map((c) => `
+      <a class="quick-item" href="${c.href}" data-board="${c.board ? 1 : 0}">
+        <div class="qi">${c.icon}</div>
         <h3>${c.title}</h3><p>${c.desc}</p>
       </a>`).join("");
     document.querySelectorAll("[data-board]").forEach((el) => {
@@ -173,11 +173,14 @@
   function renderCompetitions() {
     const box = document.getElementById("compList");
     if (!competitions.length) { box.innerHTML = '<div class="empty-state" style="padding:20px">暂无赛事</div>'; return; }
-    box.innerHTML = competitions.map((c, i) => `
-      <div class="comp-card" style="margin-bottom:14px">
+    box.innerHTML = competitions.map((c) => `
+      <div class="comp-card" style="margin-bottom:12px">
         <div class="comp-head">
-          <div><h3>${API.escapeHtml(c.title)}</h3><div style="font-size:13px;color:var(--ink-3)">${API.escapeHtml(c.subtitle || "")}</div></div>
-          <span style="margin-left:auto">${statusBadge(c.status)}</span>
+          <div style="min-width:0">
+            <div class="comp-badge">${statusBadge(c.status)}</div>
+            <h3>${API.escapeHtml(c.title)}</h3>
+            ${c.subtitle ? `<div style="font-size:12.5px;color:var(--ink-3);margin-top:3px">${API.escapeHtml(c.subtitle)}</div>` : ""}
+          </div>
         </div>
         <div class="comp-meta">
           <span>开放：<b>${c.start_at ? API.fmtTime(c.start_at) : "待定"}</b></span>
@@ -185,7 +188,7 @@
           <span>时长：<b>${c.duration_minutes ? c.duration_minutes + " 分钟" : "待定"}</b></span>
           <span>题量：<b>${c.question_count ? c.question_count + " 题" : "待定"}</b></span>
         </div>
-        ${c.rules ? `<div class="section-note" style="margin-top:10px">规则：${API.renderRules(c.rules)}</div>` : ""}
+        ${c.rules ? `<details class="comp-rules"><summary>竞赛规则</summary><div class="cr-body">${API.renderRules(c.rules)}</div></details>` : ""}
         <div class="btn-row" style="margin-top:12px">
           ${!registration ? `<button class="btn soft sm" data-join="${c.id}">报名参赛</button>` : ""}
           ${c.status === "open"
@@ -212,22 +215,74 @@
 
   function attLinks(atts) {
     if (!atts || !atts.length) return "";
-    const links = atts.map((a) =>
-      `<a class="link-btn" href="${a.data}" download="${API.escapeHtml(a.name)}" target="_blank" rel="noopener" style="margin-right:14px;display:inline-block">附件：${API.escapeHtml(a.name)}（${fmtSize(a.size)}）</a>`
+    return atts.map((a) =>
+      `<div class="news-files" style="margin-top:6px"><a class="link-btn" href="${a.data}" download="${API.escapeHtml(a.name)}" target="_blank" rel="noopener">附件：${API.escapeHtml(a.name)}（${fmtSize(a.size)}）</a></div>`
     ).join("");
-    return `<div class="news-files" style="margin-top:6px">${links}</div>`;
   }
+
+  const KIND = { notice: "通知", rule: "竞赛规则", result: "成绩公告" };
 
   function renderAnnouncements() {
     const box = document.getElementById("annList");
-    if (!announcements.length) { box.innerHTML = '<div class="empty-state" style="padding:20px">暂无公告</div>'; return; }
-    box.innerHTML = announcements.map((a) => `
-      <div class="news-item">
-        <div class="t">${a.pinned ? '<span class="badge red pinned-tag" style="margin-right:6px">置顶</span>' : ""}${API.escapeHtml(a.title)}</div>
-        <div class="meta">${{ notice: "通知", rule: "规则", result: "结果" }[a.kind] || "通知"} · ${API.fmtTime(a.created_at)}</div>
-        <div class="body">${API.escapeHtml(a.content)}</div>
-        ${attLinks(parseAtt(a.attachments))}
-      </div>`).join("");
+    const cnt = document.getElementById("annCount");
+    if (cnt) cnt.textContent = announcements.length ? `共 ${announcements.length} 条` : "";
+    if (!announcements.length) {
+      box.innerHTML = `
+        <div class="notice-empty">
+          <div class="ne-ico">✉</div>
+          <div class="ne-t">暂无公告</div>
+          <p>赛前通知、竞赛规则与成绩公告将在此发布。</p>
+        </div>`;
+      return;
+    }
+    box.innerHTML = announcements.map((a, i) => `
+      <article class="notice-item" data-ann="${i}">
+        <div class="nt-top">
+          <span class="tag-pill">${KIND[a.kind] || "通知"}</span>
+          ${a.pinned ? '<span class="tag-pill pin">置顶</span>' : ""}
+          <span class="nt-date">${API.fmtTime(a.created_at)}</span>
+        </div>
+        <div class="nt-title">${API.escapeHtml(a.title)}</div>
+        <div class="nt-body">${API.escapeHtml(a.content || "")}</div>
+        <div class="nt-more">查看全文 ›</div>
+      </article>`).join("");
+    box.querySelectorAll("[data-ann]").forEach((el) => {
+      el.onclick = () => openNotice(announcements[Number(el.dataset.ann)]);
+    });
+  }
+
+  /* 公告详情：分段排版，小标题顶格、正文首行缩进两字 */
+  function articleHtml(text) {
+    return String(text || "").split(/\r\n|\r|\n/).map((line) => {
+      const t = line.trim();
+      if (!t) return "";
+      const isHead = /^[一二三四五六七八九十]+、/.test(t)
+        || /^（[一二三四五六七八九十]+）/.test(t)
+        || /^第[一二三四五六七八九十]+[章节]/.test(t);
+      return isHead ? `<h4>${API.escapeHtml(t)}</h4>` : `<p>${API.escapeHtml(t)}</p>`;
+    }).join("");
+  }
+
+  function openNotice(a) {
+    if (!a) return;
+    const mask = document.createElement("div");
+    mask.className = "modal-mask";
+    const atts = parseAtt(a.attachments);
+    mask.innerHTML = `
+      <div class="modal notice-modal" role="dialog" aria-modal="true">
+        <div class="nm-top">
+          <span class="tag-pill">${KIND[a.kind] || "通知"}</span>
+          <button type="button" class="nm-close" aria-label="关闭">✕</button>
+        </div>
+        <h3 class="nm-title">${API.escapeHtml(a.title)}</h3>
+        <div class="nm-meta">${API.fmtTime(a.created_at)} · 云南工业信息职业学院学生青年成长社</div>
+        <div class="nm-article">${articleHtml(a.content)}</div>
+        ${atts.length ? `<div class="nm-files">${attLinks(atts)}</div>` : ""}
+      </div>`;
+    const close = () => mask.remove();
+    mask.querySelector(".nm-close").onclick = close;
+    mask.onclick = (e) => { if (e.target === mask) close(); };
+    document.body.appendChild(mask);
   }
 
   /* 草稿板（本地保存） */
