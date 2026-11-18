@@ -7,9 +7,11 @@
 
   async function load() {
     const { data } = await API.sb.from("appeals")
-      .select("*,profiles(full_name,student_no,department,class_name)")
+      .select("*")
       .order("created_at", { ascending: false });
     all = data || [];
+    const pMap = await API.profileMap(all.map((a) => a.user_id));
+    all.forEach((a) => { a.profiles = pMap[a.user_id] || {}; });
     document.getElementById("appealCount").textContent = `共 ${all.length} 条，待处理 ${all.filter((a) => a.status === "pending").length} 条`;
     render();
   }
