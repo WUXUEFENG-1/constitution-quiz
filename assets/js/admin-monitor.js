@@ -10,12 +10,12 @@
     clearInterval(monitorTimer);
     monitorTimer = setInterval(() => { if (!document.getElementById("panel-monitor").hidden) loadMonitor(); }, 20000);
     const [{ data: atts }, { data: cheats }] = await Promise.all([
-      API.sb.from("attempts")
-        .select("*,profiles(full_name,student_no,department,class_name)")
-        .order("started_at", { ascending: false }),
+      API.sb.from("attempts").select("*").order("started_at", { ascending: false }),
       API.sb.from("cheat_events").select("user_id,kind,count")
     ]);
     const rows = atts || [];
+    const pMap = await API.profileMap(rows.map((a) => a.user_id));
+    rows.forEach((a) => { a.profiles = pMap[a.user_id] || {}; });
     const switchMap = {};
     (cheats || []).forEach((c) => {
       if (!c.user_id) return;
@@ -54,9 +54,11 @@
 
   async function loadCheat() {
     const { data } = await API.sb.from("cheat_events")
-      .select("*,profiles(full_name,student_no)")
+      .select("*")
       .order("created_at", { ascending: false }).limit(200);
     const rows = data || [];
+    const pMap = await API.profileMap(rows.map((c) => c.user_id));
+    rows.forEach((c) => { c.profiles = pMap[c.user_id] || {}; });
     document.getElementById("cheatCount").textContent = `共 ${rows.length} 条记录`;
     const body = document.getElementById("cheatBody");
     if (!rows.length) { body.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center">暂无异常行为记录</td></tr>'; return; }
