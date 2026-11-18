@@ -304,10 +304,16 @@
   <!-- 系统日志 -->
   <section id="panel-logs" hidden>
     <div class="card">
-      <div class="card-title">登录与操作日志</div>
+      <div class="card-title">登录与操作日志 <span class="right" id="logCount"></span></div>
+      <div class="toolbar">
+        <button class="btn soft sm" id="logRefresh">刷新</button>
+        <button class="btn ghost sm" id="logExport">导出日志（CSV）</button>
+        <button class="btn danger sm" id="logClear">清空日志</button>
+        <span class="section-note">仅管理员可删除；清空后会保留本次“清空日志”操作记录。</span>
+      </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr><th>时间</th><th>账号 / 角色</th><th>操作</th><th>详情</th></tr></thead>
+          <thead><tr><th>时间</th><th>账号 / 角色</th><th>操作</th><th>详情</th><th>操作</th></tr></thead>
           <tbody id="logBody"></tbody>
         </table>
       </div>
