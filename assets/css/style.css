@@ -449,10 +449,10 @@ table.data .muted { color: var(--ink-3); }
 
 .rank-row { display: flex; align-items: center; gap: 14px; padding: 12px 4px; border-bottom: 1px dashed var(--line); }
 .rank-row:last-child { border-bottom: none; }
-.rank-no { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--blue-100); color: var(--blue-700); }
-.rank-no.top1 { background: #fbeecb; color: #9a6b00; }
-.rank-no.top2 { background: #eef1f5; color: #5a6672; }
-.rank-no.top3 { background: #f7e2d3; color: #a3551f; }
+.rank-no { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; background: var(--navy-100); color: var(--navy-700); }
+.rank-no.top1 { width: 36px; height: 36px; font-size: 16px; color: #fff; background: linear-gradient(145deg, #f7c948 0%, #e8a112 100%); box-shadow: 0 3px 8px rgba(232, 161, 18, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+.rank-no.top2 { width: 36px; height: 36px; font-size: 16px; color: #fff; background: linear-gradient(145deg, #d7dee6 0%, #a3b0be 100%); box-shadow: 0 3px 8px rgba(120, 134, 148, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+.rank-no.top3 { width: 36px; height: 36px; font-size: 16px; color: #fff; background: linear-gradient(145deg, #e09a63 0%, #c0713a 100%); box-shadow: 0 3px 8px rgba(192, 113, 58, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
 .rank-main { flex: 1; min-width: 0; }
 .rank-main .nm { font-weight: 600; }
 .rank-main .sub { font-size: 12.5px; color: var(--ink-3); }
