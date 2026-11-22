@@ -23,8 +23,6 @@
 
     document.getElementById("setSaveSite").onclick = saveSite;
     document.getElementById("setSaveDs").onclick = saveDs;
-    const purgeBtn = document.getElementById("purgeTestBtn");
-    if (purgeBtn) purgeBtn.onclick = purgeTest;
   }
 
   async function saveSite() {
@@ -128,17 +126,5 @@
     const { error } = await API.sb.rpc("admin_clear_logs");
     if (error) return API.toast("清空失败：" + error.message, "error");
     API.toast("日志已清空", "success"); loadLogs();
-  }
-
-  async function purgeTest() {
-    if (!await API.confirm("确认清理测试账号 吴雪枫（25104013101128）名下的答卷、异常、练习、申诉、证书、消息？其他选手记录保留，此操作不可恢复。", "测试账号清理")) return;
-    const btn = document.getElementById("purgeTestBtn");
-    if (btn) { btn.disabled = true; btn.textContent = "清理中…"; }
-    const { data, error } = await API.sb.rpc("admin_purge_test_data");
-    if (btn) { btn.disabled = false; btn.textContent = "清理测试账号记录"; }
-    if (error) return API.toast("清理失败：" + error.message, "error");
-    const d = data || {};
-    if (d.note) return API.toast(d.note, "info", 3000);
-    API.toast(`已清理测试账号：答卷 ${d.attempts || 0}、异常 ${d.cheat || 0}、练习 ${d.practice || 0}、申诉 ${d.appeals || 0}、证书 ${d.certificates || 0}`, "success", 4000);
   }
 })();
