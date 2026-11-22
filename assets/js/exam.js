@@ -4,6 +4,7 @@
   let tickTimer = null, submitting = false, storeKey = "";
   let switchCount = 0, current = 0, timeoutWarned = false, compSwitchLimit = null;
   let lastCheatAt = 0, cloudAnswers = {}, cloudSaveTimer = null;
+  let compTitle = "", durationMin = 0, examStarted = false;
 
   init();
 
@@ -53,16 +54,24 @@
     if (r) r.onclick = () => location.reload();
   }
 
+  function requestFullscreenEl(el) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (!fn) return Promise.resolve(false);
+    try {
+      const r = fn.call(el);
+      return Promise.resolve(r && r.catch ? r.catch(() => false) : true);
+    } catch (e) { return Promise.resolve(false); }
+  }
+
   function enterFullscreen() {
-    const el = document.documentElement;
-    if (!document.fullscreenElement && el.requestFullscreen) {
-      el.requestFullscreen().catch(() => {});
-    }
+    return requestFullscreenEl(document.documentElement);
   }
 
   function exitFullscreen() {
-    if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
+    const doc = document;
+    const fn = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    if (doc.fullscreenElement && fn) {
+      try { const r = fn.call(doc); if (r && r.catch) r.catch(() => {}); } catch (e) {}
     }
   }
 
@@ -80,20 +89,38 @@
 
       if (!questions.length) throw new Error("试卷为空，请联系管理员");
 
-      document.getElementById("guardBox").innerHTML = "";
-      document.getElementById("examArea").hidden = false;
-      enterFullscreen();
-      if (data.competition_title) document.getElementById("examTitle").textContent = data.competition_title;
-      document.getElementById("examMeta").textContent += ` · 共 ${questions.length} 题 · ${data.duration_minutes} 分钟`;
+      compTitle = data.competition_title || "";
+      durationMin = data.duration_minutes || 0;
 
-      restoreAnswers();
-      render();
-      startTimer();
-      scheduleCloudSave(15000);
+      // 浏览器全屏 API 必须由用户点击触发，先弹全屏引导框，点击按钮后再进入全屏并开考
+      document.getElementById("fsStartBtn").onclick = beginExam;
+      document.getElementById("fsModal").hidden = false;
     } catch (err) {
       const msg = String(err.message || err);
       guardMessage(msg, /结束|时间/.test(msg));
     }
+  }
+
+  async function beginExam() {
+    if (examStarted) return;
+    examStarted = true;
+
+    // 在点击手势内同步发起全屏申请；手势上下文内调用才不会被浏览器拒绝
+    const entered = await enterFullscreen();
+
+    document.getElementById("fsModal").hidden = true;
+    document.getElementById("guardBox").innerHTML = "";
+    document.getElementById("examArea").hidden = false;
+
+    if (!entered) API.toast("当前浏览器未允许进入全屏，仍可继续答题", "error", 3000);
+
+    if (compTitle) document.getElementById("examTitle").textContent = compTitle;
+    document.getElementById("examMeta").textContent += ` · 共 ${questions.length} 题 · ${durationMin} 分钟`;
+
+    restoreAnswers();
+    render();
+    startTimer();
+    scheduleCloudSave(15000);
   }
 
   function restoreAnswers() {
@@ -346,6 +373,7 @@
       const { data, error } = await API.sb.rpc("submit_exam_v2", { p_answers: payload });
       if (error) throw error;
       try { localStorage.removeItem(storeKey); } catch (e) {}
+      exitFullscreen();
       location.replace("result.html?id=" + (data.attempt_id || ""));
     } catch (err) {
       submitting = false;

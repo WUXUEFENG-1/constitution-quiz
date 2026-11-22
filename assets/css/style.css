@@ -705,3 +705,16 @@ table.data td.op, .op { white-space: nowrap; }
 .notice-modal .nm-article p { margin: 0 0 10px; text-indent: 2em; }
 .notice-modal .nm-article h4 { margin: 14px 0 8px; font-size: 15px; color: var(--navy-900); }
 .notice-modal .nm-files { padding: 0 22px 18px; }
+
+/* 全屏引导弹窗示意图 */
+.fs-illus { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.fs-monitor {
+  width: 150px; height: 96px; border: 3px solid #9fb3c8; border-radius: 10px;
+  background: #f1f5f9; position: relative;
+}
+.fs-monitor::after {
+  content: ""; position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%);
+  width: 40px; height: 12px; background: #9fb3c8; border-radius: 0 0 4px 4px;
+}
+.fs-monitor-on { border-color: var(--navy-600); background: #e8f0fb; }
+.fs-arrow { font-size: 26px; font-weight: 700; color: #c3ccd6; letter-spacing: 2px; }
