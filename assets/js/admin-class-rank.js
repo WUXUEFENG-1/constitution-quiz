@@ -1,9 +1,10 @@
-/* 班级排行：按班级参与率与百分制均分核算综合分，支持筛选与导出 CSV */
+/* 班级排行：按班级参与率与百分制均分核算综合分，支持筛选、导出 CSV、批量删除与导入 */
 (function () {
   const W_AVG = 0.6;   // 均分权重
   const W_RATE = 0.4;  // 参与率权重
   let allRows = [];
   let filtered = [];
+  let selected = new Set();
 
   Admin.register("classrank", { load });
 
@@ -28,11 +29,29 @@
   let rosterIndex = null;
   function buildIndex() {
     if (rosterIndex) return rosterIndex;
-    rosterIndex = (window.CLASS_ROSTER || []).map(([dept, full, total]) => {
-      const { major, num } = parseClass(full);
-      return { dept, full, major, num, total };
+    rosterIndex = rosterDb.map((r) => {
+      const { major, num } = parseClass(r.class_name);
+      return { dept: r.dept, full: r.class_name, major, num, total: r.total };
     });
     return rosterIndex;
+  }
+
+  let rosterDb = [];
+
+  /* 从数据库读取花名册；接口异常或为空时回退到内置静态名单 */
+  async function loadRoster() {
+    rosterIndex = null;
+    try {
+      const { data, error } = await API.sb.rpc("admin_list_roster");
+      if (!error && Array.isArray(data) && data.length) {
+        return data.map((r) => ({
+          id: r.id, dept: r.dept, class_name: r.class_name, total: Number(r.total) || 0
+        }));
+      }
+    } catch (e) { /* 走静态兜底 */ }
+    return (window.CLASS_ROSTER || []).map(([dept, class_name, total]) => ({
+      id: null, dept, class_name, total: Number(total) || 0
+    }));
   }
 
   function parseClass(raw) {
@@ -71,6 +90,10 @@
   async function load() {
     document.getElementById("classRankRefresh").onclick = load;
     document.getElementById("classRankExport").onclick = exportCSV;
+    document.getElementById("classRankImport").onclick = () => document.getElementById("classRankFile").click();
+    document.getElementById("classRankDelete").onclick = batchDelete;
+    document.getElementById("classRankFile").onchange = onImportFile;
+    document.getElementById("classRankCheckAll").onchange = onCheckAll;
 
     const searchEl = document.getElementById("classRankSearch");
     const deptEl = document.getElementById("classRankDept");
@@ -79,6 +102,8 @@
       el.oninput = applyFilterAndRender;
       el.onchange = applyFilterAndRender;
     });
+
+    rosterDb = await loadRoster();
 
     const [profRes, attRes] = await Promise.all([
       API.sb.from("profiles").select("id,full_name,student_no,department,class_name,role,status"),
@@ -99,14 +124,14 @@
 
     // 花名册基线
     const roster = {};
-    (window.CLASS_ROSTER || []).forEach(([dept, name, total]) => {
-      roster[name] = { dept, total, reg: 0, sub: 0, scoreSum: 0, pctSum: 0 };
+    rosterDb.forEach((r) => {
+      roster[r.class_name] = { id: r.id, dept: r.dept, total: r.total, reg: 0, sub: 0, scoreSum: 0, pctSum: 0 };
     });
 
     // 报名人数归集
     regs.forEach((p) => {
       const cls = resolveClass(p.class_name);
-      if (!roster[cls]) roster[cls] = { dept: p.department, total: 0, reg: 0, sub: 0, scoreSum: 0, pctSum: 0, extra: true };
+      if (!roster[cls]) roster[cls] = { id: null, dept: p.department, total: 0, reg: 0, sub: 0, scoreSum: 0, pctSum: 0, extra: true };
       roster[cls].reg += 1;
     });
 
@@ -130,11 +155,15 @@
       const avgRaw = e.sub > 0 ? e.scoreSum / e.sub : 0;
       const score = e.sub > 0 ? avgPct * W_AVG + rate * 100 * W_RATE : 0;
       return {
-        cls, dept: normalizeDept(e.dept), total, reg: e.reg, sub: e.sub,
+        id: e.id, cls, dept: normalizeDept(e.dept), total, reg: e.reg, sub: e.sub,
         rate, avgPct, avgRaw, score, extra: !!e.extra
       };
     }).filter((r) => r.total > 0 || r.reg > 0 || r.sub > 0)
       .sort((a, b) => b.score - a.score || b.rate - a.rate || b.avgPct - a.avgPct);
+
+    // 清理已不存在班级的勾选
+    const alive = new Set(allRows.map((r) => r.id).filter(Boolean));
+    selected = new Set([...selected].filter((id) => alive.has(id)));
 
     fillDeptOptions();
     applyFilter();
@@ -179,13 +208,15 @@
     const base = `共 ${allRows.length} 个班级`;
     if (count) count.textContent = filtered.length !== allRows.length ? `${base}（筛选 ${filtered.length}）` : base;
     if (!filtered.length) {
-      body.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center">暂无符合条件的班级</td></tr>';
+      body.innerHTML = '<tr><td colspan="10" class="muted" style="text-align:center">暂无符合条件的班级</td></tr>';
       return;
     }
     body.innerHTML = filtered.map((r, i) => {
       const rate = Math.round(r.rate * 100);
       const avg = r.sub > 0 ? r.avgPct.toFixed(1) : "—";
+      const ck = r.id ? `<input type="checkbox" class="ck" data-id="${r.id}" ${selected.has(r.id) ? "checked" : ""}>` : "";
       return `<tr>
+        <td>${ck}</td>
         <td><b>${i + 1}</b></td>
         <td>${API.escapeHtml(r.dept || "—")}</td>
         <td>${API.escapeHtml(r.cls)}${r.extra ? ' <span class="badge gray" style="margin-left:4px">未入花名册</span>' : ""}</td>
@@ -197,6 +228,66 @@
         <td><b>${r.score.toFixed(1)}</b></td>
       </tr>`;
     }).join("");
+    body.querySelectorAll(".ck").forEach((c) => c.onchange = () => {
+      const id = Number(c.dataset.id);
+      c.checked ? selected.add(id) : selected.delete(id);
+    });
+    const allCk = document.getElementById("classRankCheckAll");
+    if (allCk) allCk.checked = filtered.some((r) => r.id) && filtered.filter((r) => r.id).every((r) => selected.has(r.id));
+  }
+
+  function onCheckAll(e) {
+    filtered.forEach((r) => {
+      if (!r.id) return;
+      e.target.checked ? selected.add(r.id) : selected.delete(r.id);
+    });
+    render();
+  }
+
+  async function batchDelete() {
+    const ids = [...selected];
+    if (!ids.length) return API.toast("请先勾选要删除的班级", "error");
+    const ok = await API.confirm(`确认删除勾选的 ${ids.length} 个班级？仅删除花名册基线，不影响选手成绩记录。`);
+    if (!ok) return;
+    const { error } = await API.sb.rpc("admin_delete_roster", { p_ids: ids });
+    if (error) return API.toast("删除失败：" + error.message, "error", 4000);
+    API.toast("已删除所选班级", "success");
+    selected.clear();
+    load();
+  }
+
+  async function onImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const rows = await API.parseTableFile(file);
+      if (!rows.length) return API.toast("未解析到有效行", "error");
+      const pick = (r, keys) => {
+        for (const k of keys) {
+          const v = r[k];
+          if (v != null && String(v).trim() !== "") return String(v).trim();
+        }
+        return "";
+      };
+      const payload = [];
+      rows.forEach((r) => {
+        const class_name = pick(r, ["班级", "班级名称", "班名", "className"]);
+        if (!class_name) return;
+        const dept = pick(r, ["系部", "部门", "二级学院", "学院", "dept"]);
+        const total = parseInt(pick(r, ["应到人数", "人数", "总人数", "应到", "班级人数", "total"]), 10);
+        payload.push({ dept, class_name, total: Number.isNaN(total) ? 0 : total });
+      });
+      if (!payload.length) return API.toast("未识别到班级列，请检查表头：系部 / 班级 / 应到人数", "error");
+      const ok = await API.confirm(`解析到 ${payload.length} 个班级，是否导入（同名班级会覆盖应到人数）？`);
+      if (!ok) return;
+      const { data, error } = await API.sb.rpc("admin_import_roster", { p_rows: payload });
+      if (error) return API.toast("导入失败：" + error.message, "error", 4000);
+      API.toast(`导入完成：${data != null ? data : payload.length} 个班级`, "success");
+      load();
+    } catch (err) {
+      API.toast("导入失败：" + (err.message || err), "error", 4000);
+    }
+    e.target.value = "";
   }
 
   function exportCSV() {

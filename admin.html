@@ -212,6 +212,9 @@
       <div class="toolbar">
         <button class="btn soft sm" id="classRankRefresh">刷新</button>
         <button class="btn ghost sm" id="classRankExport">导出班级排行（CSV）</button>
+        <button class="btn ghost sm" id="classRankImport">导入班级</button>
+        <button class="btn soft sm danger" id="classRankDelete">批量删除</button>
+        <input type="file" id="classRankFile" accept=".csv,.xlsx,.xls" hidden>
         <input type="text" id="classRankSearch" class="grow" placeholder="按班级名称搜索">
         <select id="classRankDept"><option value="">全部系部</option></select>
         <select id="classRankState">
@@ -224,7 +227,7 @@
       </div>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr><th>排名</th><th>系部</th><th>班级</th><th>应到</th><th>报名</th><th>交卷</th><th>参与率</th><th>均分</th><th>综合分</th></tr></thead>
+          <thead><tr><th style="width:36px"><input type="checkbox" id="classRankCheckAll"></th><th>排名</th><th>系部</th><th>班级</th><th>应到</th><th>报名</th><th>交卷</th><th>参与率</th><th>均分</th><th>综合分</th></tr></thead>
           <tbody id="classRankBody"></tbody>
         </table>
       </div>
@@ -377,8 +380,8 @@
 <script src="assets/js/admin-appeals.js"></script>
 <script src="assets/js/admin-scores.js"></script>
 <script src="assets/js/admin-rank.js"></script>
-<script src="assets/js/class-roster.js"></script>
-<script src="assets/js/admin-class-rank.js"></script>
+<script src="assets/js/class-roster.js?v=20261118"></script>
+<script src="assets/js/admin-class-rank.js?v=20261118"></script>
 <script src="assets/js/admin-practice.js"></script>
 <script src="assets/js/admin-certs.js"></script>
 <script src="assets/js/admin-news.js"></script>
