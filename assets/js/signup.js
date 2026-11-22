@@ -49,6 +49,7 @@
         return;
       }
 
+      await API.touchSession();
       API.toast("注册成功，正在进入选手中心", "success");
       setTimeout(() => location.replace("home.html"), 600);
     } catch (err) {

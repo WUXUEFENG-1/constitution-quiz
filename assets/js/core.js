@@ -72,11 +72,20 @@
       if (!sb) return null;
       const user = await API.currentUser();
       if (!user) return null;
-      const { data, error } = await sb
+      const cols = "id, full_name, student_no, department, class_name, phone, role, status, ban_reason, session_token";
+      let { data, error } = await sb
         .from("profiles")
-        .select("id, full_name, student_no, department, class_name, phone, role, status, ban_reason")
+        .select(cols)
         .eq("id", user.id)
         .maybeSingle();
+      // 兼容 v17 迁移尚未执行的环境：缺 session_token 列时退回旧字段查询
+      if (error && /session_token|column/i.test(String(error.message || ""))) {
+        ({ data, error } = await sb
+          .from("profiles")
+          .select("id, full_name, student_no, department, class_name, phone, role, status, ban_reason")
+          .eq("id", user.id)
+          .maybeSingle());
+      }
       if (error) throw error;
       return data || { id: user.id, role: "contestant", full_name: "", student_no: "", status: "active", __missing: true };
     },
@@ -104,6 +113,17 @@
         await API.signOut(true);
         throw new Error("banned");
       }
+      // 多端登录互踢：服务端令牌与本设备不一致 → 已在别处登录，强制下线
+      const localToken = API.sessionToken();
+      const serverToken = profile.session_token || "";
+      if (serverToken) {
+        if (localToken && localToken !== serverToken) {
+          await API.kickOut();
+          throw new Error("kicked");
+        }
+        if (!localToken) API.setSessionToken(serverToken);
+      }
+      API.startSessionGuard(15000);
       if (role === "admin" && !API.isAdminRole(profile.role)) {
         location.replace(API.isStaff(profile.role) ? "admin.html" : "home.html");
         throw new Error("not-admin");
@@ -125,8 +145,53 @@
     },
 
     async signOut(skipRedirect) {
+      API.clearSessionToken();
       if (sb) await sb.auth.signOut();
       if (!skipRedirect) location.replace("index.html");
+    },
+
+    /* ---------- 多端登录互踢：本设备会话令牌 ---------- */
+    SESSION_KEY: "xfjs_session_token",
+    _heartbeat: null,
+
+    sessionToken() {
+      try { return localStorage.getItem(API.SESSION_KEY) || ""; } catch (e) { return ""; }
+    },
+    setSessionToken(t) {
+      try { if (t) localStorage.setItem(API.SESSION_KEY, t); } catch (e) {}
+    },
+    clearSessionToken() {
+      try { localStorage.removeItem(API.SESSION_KEY); } catch (e) {}
+    },
+    genSessionToken() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return "sess-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+    },
+    /* 登录成功后把新令牌写入服务端并记到本设备 */
+    async touchSession() {
+      const token = API.genSessionToken();
+      try { await sb.rpc("touch_session", { p_token: token }); } catch (e) {}
+      API.setSessionToken(token);
+      return token;
+    },
+    /* 心跳：服务端令牌与本设备不一致，说明账号已在别处登录，强制下线 */
+    async _verifySession() {
+      const local = API.sessionToken();
+      if (!local) return;
+      let profile;
+      try { profile = await API.getProfile(); } catch (e) { return; }
+      const server = (profile && profile.session_token) || "";
+      if (server && local !== server) {
+        await API.kickOut();
+      }
+    },
+    startSessionGuard(intervalMs) {
+      if (API._heartbeat) return;
+      API._heartbeat = setInterval(() => { API._verifySession(); }, intervalMs || 15000);
+    },
+    async kickOut() {
+      try { API.clearSessionToken(); if (sb) await sb.auth.signOut(); } catch (e) {}
+      location.replace("index.html?kicked=1");
     },
 
     /* ---------- 改密 ---------- */

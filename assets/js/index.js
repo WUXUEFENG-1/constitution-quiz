@@ -11,6 +11,10 @@
     captchaOn = sec.captcha !== false;
     document.getElementById("captchaField").style.display = captchaOn ? "" : "none";
 
+    if (new URLSearchParams(location.search).get("kicked") === "1") {
+      API.toast("账号已在其他设备登录，本端已退出", "error", 4000);
+    }
+
     const canvas = document.getElementById("captchaCanvas");
     const refresh = () => API.newCaptcha(canvas);
     refresh();
@@ -20,8 +24,16 @@
     if (session) {
       const profile = await API.getProfile().catch(() => null);
       if (profile && profile.status !== "banned") {
-        location.replace(API.isStaff(profile.role) ? "admin.html" : "home.html");
-        return;
+        // 多端互踢：本地令牌与服务端不一致，说明已在别处登录，清掉会话回到登录页
+        const local = API.sessionToken();
+        const server = profile.session_token || "";
+        if (server && local && local !== server) {
+          await API.signOut(true);
+        } else {
+          if (!local && server) API.setSessionToken(server);
+          location.replace(API.isStaff(profile.role) ? "admin.html" : "home.html");
+          return;
+        }
       }
     }
 
@@ -81,6 +93,8 @@
         return API.toast("账号已被禁用，请联系组委会", "error", 4000);
       }
       await API.logAction("登录", account);
+      // 写入本设备会话令牌：新设备登录会顶掉旧设备
+      await API.touchSession();
 
       const qs = new URLSearchParams(location.search);
       const redirect = qs.get("redirect");
