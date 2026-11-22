@@ -36,7 +36,7 @@
     const submitted = rows.filter((a) => a.status === "submitted");
     document.getElementById("scoreCount").textContent = `共 ${rows.length} 条（已交卷 ${submitted.length}）`;
     const body = document.getElementById("scoreBody");
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="11" class="muted" style="text-align:center">暂无成绩</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center">暂无成绩</td></tr>'; return; }
     const rankMap = new Map();
     submitted.slice().sort((a, b) => b.score - a.score || (a.duration_seconds || 0) - (b.duration_seconds || 0))
       .forEach((a, i) => rankMap.set(a.id, i + 1));
@@ -54,8 +54,21 @@
         <td>${pct}%</td>
         <td>${Math.floor((a.duration_seconds || 0) / 60)}分${(a.duration_seconds || 0) % 60}秒</td>
         <td>${API.fmtTime(a.submitted_at)}</td>
+        <td><button class="link-btn danger" data-del="${a.id}">删除</button></td>
       </tr>`;
     }).join("");
+    body.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => delAttempt(b.dataset.del));
+  }
+
+  async function delAttempt(id) {
+    const a = all.find((x) => x.id === id);
+    const name = a && a.profiles ? (a.profiles.full_name || a.profiles.student_no || "") : "";
+    const ok = await API.confirm(`确认删除该成绩记录${name ? "（" + name + "）" : ""}？关联的异常行为、申诉记录会一并清除，账号保留。`);
+    if (!ok) return;
+    const { error } = await API.sb.rpc("admin_delete_attempt", { p_id: id });
+    if (error) return API.toast("删除失败：" + error.message, "error", 4000);
+    API.toast("成绩已删除", "success");
+    load();
   }
 
   function exportCSV() {
