@@ -5,6 +5,7 @@
   let allRows = [];
   let filtered = [];
   let selected = new Set();
+  let extraStudents = [];
 
   Admin.register("classrank", { load });
 
@@ -90,6 +91,8 @@
   async function load() {
     document.getElementById("classRankRefresh").onclick = load;
     document.getElementById("classRankExport").onclick = exportCSV;
+    const extraBtn = document.getElementById("classRankExportExtra");
+    if (extraBtn) extraBtn.onclick = exportExtraCSV;
     document.getElementById("classRankImport").onclick = () => document.getElementById("classRankFile").click();
     document.getElementById("classRankDelete").onclick = batchDelete;
     document.getElementById("classRankFile").onchange = onImportFile;
@@ -146,6 +149,23 @@
       const pct = att.total_score > 0 ? (Number(att.score || 0) / att.total_score) * 100 : 0;
       e.pctSum += pct;
     });
+
+    // 未入花名册学生明细
+    extraStudents = regs.map((p) => {
+      const cls = resolveClass(p.class_name);
+      const e = roster[cls];
+      const att = best.get(p.id);
+      const pct = att && att.total_score > 0 ? (Number(att.score || 0) / att.total_score) * 100 : null;
+      return {
+        name: p.full_name || "", student_no: p.student_no || "",
+        dept: normalizeDept(p.department), class_raw: p.class_name || "", cls,
+        extra: !e || !!e.extra, submitted: !!att,
+        score: att ? Number(att.score || 0) : "",
+        total: att ? Number(att.total_score || 0) : "",
+        pct: pct == null ? "" : pct.toFixed(1),
+        duration: att ? att.duration_seconds : ""
+      };
+    }).filter((s) => s.extra);
 
     // 汇总指标
     allRows = Object.entries(roster).map(([cls, e]) => {
@@ -301,6 +321,17 @@
       r.score.toFixed(1)
     ]);
     API.downloadCSV(`班级排行_${new Date().toISOString().slice(0, 10)}.csv`, [header, ...lines]);
+  }
+
+  function exportExtraCSV() {
+    if (!extraStudents.length) return API.toast("没有未入花名册的学生", "error");
+    const header = ["系部", "姓名", "学号", "填写班级", "归一班级", "状态", "得分", "总分", "正确率%", "用时(秒)"];
+    const lines = extraStudents.map((s) => [
+      s.dept, s.name, s.student_no, s.class_raw, s.cls,
+      s.submitted ? "已交卷" : "已报名未交卷",
+      s.score, s.total, s.pct, s.duration
+    ]);
+    API.downloadCSV(`未入花名册学生_${new Date().toISOString().slice(0, 10)}.csv`, [header, ...lines]);
   }
 
   function normalizeDept(name) {
