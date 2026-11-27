@@ -9,17 +9,47 @@
     all = data || [];
     document.getElementById("userCount").textContent = `共 ${all.length} 个账号`;
     bindFilters();
+    populateDimensionOptions();
     render();
   }
 
+  function majorOf(cls) {
+    const t = String(cls || "").trim().replace(/\s+/g, "").replace(/班$/, "");
+    const m = t.match(/\d{2,4}/);
+    return m ? t.slice(0, m.index) : t;
+  }
+
+  function deptOf(d) { return String(d || "").trim() || "未填写"; }
+
+  function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort(); }
+
+  function optionsFor(selId, label, values) {
+    const sel = document.getElementById(selId);
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">${label}</option>` +
+      values.map((v) => `<option value="${API.escapeHtml(v)}">${API.escapeHtml(v)}</option>`).join("");
+    sel.value = values.includes(cur) ? cur : "";
+  }
+
+  function populateDimensionOptions() {
+    const dept = document.getElementById("userDept").value;
+    const major = document.getElementById("userMajor").value;
+    const byDept = all.filter((u) => !dept || deptOf(u.department) === dept);
+    const byMajor = byDept.filter((u) => !major || majorOf(u.class_name) === major);
+    optionsFor("userDept", "全部二级学院", uniq(all.map((u) => deptOf(u.department))));
+    optionsFor("userMajor", "全部专业", uniq(byDept.map((u) => majorOf(u.class_name))));
+    optionsFor("userClass", "全部班级", uniq(byMajor.map((u) => String(u.class_name || "").trim())));
+  }
+
   function bindFilters() {
-    ["userSearch", "userRole", "userStatus"].forEach((id) => {
+    ["userSearch", "userRole", "userStatus", "userDept", "userMajor", "userClass"].forEach((id) => {
       const el = document.getElementById(id);
-      el.oninput = render; el.onchange = render;
+      el.oninput = render; el.onchange = () => { populateDimensionOptions(); render(); };
     });
     document.getElementById("userRefresh").onclick = load;
     document.getElementById("userAddBtn").onclick = openAdd;
     document.getElementById("userImportBtn").onclick = () => document.getElementById("userFile").click();
+    document.getElementById("userExport").onclick = exportCSV;
     document.getElementById("userFile").onchange = onImportFile;
   }
 
@@ -27,9 +57,15 @@
     const kw = document.getElementById("userSearch").value.trim().toLowerCase();
     const role = document.getElementById("userRole").value;
     const status = document.getElementById("userStatus").value;
+    const dept = document.getElementById("userDept").value;
+    const major = document.getElementById("userMajor").value;
+    const cls = document.getElementById("userClass").value;
     return all.filter((u) => {
       if (role && u.role !== role) return false;
       if (status && u.status !== status) return false;
+      if (dept && deptOf(u.department) !== dept) return false;
+      if (major && majorOf(u.class_name) !== major) return false;
+      if (cls && String(u.class_name || "").trim() !== cls) return false;
       if (kw && ![u.full_name, u.student_no, u.class_name, u.department].some((v) => String(v || "").toLowerCase().includes(kw))) return false;
       return true;
     });
@@ -59,6 +95,26 @@
   }
 
   function find(id) { return all.find((u) => u.id === id); }
+
+  function exportCSV() {
+    const rows = filtered().slice().sort((a, b) => {
+      const d = deptOf(a.department).localeCompare(deptOf(b.department));
+      if (d) return d;
+      const m = majorOf(a.class_name).localeCompare(majorOf(b.class_name));
+      if (m) return m;
+      const c = String(a.class_name || "").localeCompare(String(b.class_name || ""));
+      if (c) return c;
+      return String(a.full_name || "").localeCompare(String(b.full_name || ""));
+    });
+    if (!rows.length) return API.toast("暂无可导出的学生数据", "error");
+    const header = ["二级学院", "专业", "班级", "姓名", "学号", "角色", "状态", "手机号", "注册时间"];
+    const lines = rows.map((u) => [
+      deptOf(u.department), majorOf(u.class_name), String(u.class_name || "").trim(),
+      u.full_name || "", u.student_no || "", API.roleLabel(u.role),
+      u.status === "banned" ? "已封禁" : "正常", u.phone || "", API.fmtTime(u.created_at)
+    ]);
+    API.downloadCSV(`学生名单_${new Date().toISOString().slice(0, 10)}.csv`, [header, ...lines]);
+  }
 
   function onAction(act, id) {
     const u = find(id);

@@ -73,10 +73,14 @@
       <div class="card-title">选手与账号 <span class="right" id="userCount"></span></div>
       <div class="toolbar">
         <input type="text" id="userSearch" class="grow" placeholder="按姓名 / 学号 / 班级搜索">
+        <select id="userDept"><option value="">全部二级学院</option></select>
+        <select id="userMajor"><option value="">全部专业</option></select>
+        <select id="userClass"><option value="">全部班级</option></select>
         <select id="userRole"><option value="">全部角色</option><option value="contestant">选手</option><option value="admin">系统管理员</option><option value="sub_admin">子管理员</option><option value="questioner">出题员</option><option value="proctor">监考员</option><option value="statistician">统计员</option></select>
         <select id="userStatus"><option value="">全部状态</option><option value="active">正常</option><option value="banned">已封禁</option></select>
         <button class="btn sm" id="userAddBtn">新增账号</button>
         <button class="btn soft sm" id="userImportBtn">批量导入</button>
+        <button class="btn ghost sm" id="userExport">导出学生（CSV）</button>
         <input type="file" id="userFile" accept=".csv,.xlsx" hidden>
         <button class="btn soft sm" id="userRefresh">刷新</button>
       </div>
@@ -373,7 +377,7 @@
 <script src="assets/js/core.js?v=20261127"></script>
 <script src="assets/js/admin.js"></script>
 <script src="assets/js/admin-overview.js"></script>
-<script src="assets/js/admin-users.js"></script>
+<script src="assets/js/admin-users.js?v=20261127"></script>
 <script src="assets/js/admin-questions.js?v=20261127"></script>
 <script src="assets/js/admin-competitions.js"></script>
 <script src="assets/js/admin-papers.js"></script>
