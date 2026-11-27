@@ -172,7 +172,7 @@
       return `<div class="fill-input">${Array.from({ length: n })
         .map((_, k) => `<input type="text" data-fill="${k}" placeholder="第 ${k + 1} 空">`).join("")}</div>`;
     }
-    const opts = q.qtype === "judge" ? ["正确", "错误"] : (q.options || []);
+    const opts = (q.options && q.options.length) ? q.options : (q.qtype === "judge" ? ["正确", "错误"] : []);
     const inputType = q.qtype === "multiple" ? "checkbox" : "radio";
     return `<div class="opt-list">${opts.map((text, k) => `
       <label class="opt">

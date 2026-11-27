@@ -490,10 +490,16 @@
 
     letters: ["A", "B", "C", "D", "E", "F"],
 
-    answerText(qtype, answer) {
+    answerText(qtype, answer, options) {
       const arr = Array.isArray(answer) ? answer : answer == null ? [] : [answer];
       if (!arr.length) return "（未作答）";
-      if (qtype === "judge") return arr[0] === "A" ? "正确" : "错误";
+      if (qtype === "judge") {
+        if (Array.isArray(options) && options.length >= 2) {
+          const i = String(arr[0]).toUpperCase().charCodeAt(0) - 65;
+          return options[i] || arr[0];
+        }
+        return arr[0] === "A" ? "正确" : "错误";
+      }
       if (qtype === "fill") return arr.join(" / ");
       return arr.join("");
     },

@@ -66,7 +66,7 @@
         <td><span class="badge tag">${API.typeLabel(q.qtype)}</span></td>
         <td>${API.escapeHtml(catName(q.category_id))}</td>
         <td style="max-width:380px">${API.escapeHtml(q.content)}</td>
-        <td class="mono">${API.answerText(q.qtype, q.answer)}</td>
+        <td class="mono">${API.answerText(q.qtype, q.answer, q.options)}</td>
         <td>${q.score}</td>
         <td><span class="status-dot ${q.is_active ? "on" : "off"}"></span>${q.is_active ? "启用" : "停用"}</td>
         <td class="op">
@@ -247,7 +247,7 @@
           <tr>
             <td><span class="badge tag">${API.typeLabel(q.qtype)}</span></td>
             <td>${API.escapeHtml(q.content)}</td>
-            <td class="mono">${API.answerText(q.qtype, q.answer)}</td>
+            <td class="mono">${API.answerText(q.qtype, q.answer, q.options)}</td>
             <td>${q.score}</td>
           </tr>`).join("")}</tbody></table>
       </div>`;

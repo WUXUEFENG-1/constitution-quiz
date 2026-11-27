@@ -40,8 +40,8 @@
           <span class="q-score">${d.is_correct ? "✓ 得 " + d.score + " 分" : "✗ 0 分"}</span>
         </div>
         <div style="font-size:13.5px;color:var(--ink-2);padding-left:36px">
-          <div>你的答案：<b style="color:${d.is_correct ? "var(--green)" : "var(--red)"}">${API.answerText(d.qtype, d.user_answer)}</b>　
-          正确答案：<b style="color:var(--green)">${API.answerText(d.qtype, d.correct_answer)}</b></div>
+          <div>你的答案：<b style="color:${d.is_correct ? "var(--green)" : "var(--red)"}">${API.answerText(d.qtype, d.user_answer, d.options)}</b>　
+          正确答案：<b style="color:var(--green)">${API.answerText(d.qtype, d.correct_answer, d.options)}</b></div>
           ${d.analysis ? `<div style="margin-top:6px;color:var(--ink-3)">解析：${API.escapeHtml(d.analysis)}</div>` : ""}
           ${!d.is_correct ? `<div style="margin-top:8px"><a class="link-btn" href="appeals.html?attempt=${r.id}&qid=${d.id}&kind=question">对本题提出异议申诉</a></div>` : ""}
         </div>

@@ -90,7 +90,7 @@
         .map((_, k) => `<input type="text" data-fill="${k}" placeholder="第 ${k + 1} 空">`)
         .join("")}</div>`;
     }
-    const opts = q.qtype === "judge" ? ["正确", "错误"] : (q.options || []);
+    const opts = (q.options && q.options.length) ? q.options : (q.qtype === "judge" ? ["正确", "错误"] : []);
     const inputType = q.qtype === "multiple" ? "checkbox" : "radio";
     return `<div class="opt-list">${opts.map((text, k) => `
       <label class="opt">
@@ -204,8 +204,8 @@
       res.innerHTML = `
         <div class="notice ${ok ? "ok" : "danger"}" style="margin-top:12px">
           <strong>${ok ? "回答正确" : "回答错误"}</strong>
-          　你的答案：${API.answerText(q.qtype, mine && mine.some((x) => String(x).trim() !== "") ? mine : [])}
-          　正确答案：${API.answerText(q.qtype, q.answer)}
+          　你的答案：${API.answerText(q.qtype, mine && mine.some((x) => String(x).trim() !== "") ? mine : [], q.options)}
+          　正确答案：${API.answerText(q.qtype, q.answer, q.options)}
           ${q.analysis ? `<div style="margin-top:6px;color:var(--ink-2);font-weight:400">解析：${API.escapeHtml(q.analysis)}</div>` : ""}
         </div>`;
     });
